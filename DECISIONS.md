@@ -79,3 +79,25 @@ Consequences, for an all-click impression with `n` candidates:
 - **Relative gaps shrink further, because the mean moves toward the constant.** The nDCG lift of model M over baseline B goes from `Δ / m_B` to `E·Δ / (E·m_B + A)`. This matters for the "≥5% relative nDCG@10" research question, so reports state `n_all_click`.
 - **Different denominators.** AUC averages over `E` impressions; MRR and nDCG average over `E + A`. Their per-impression means come from different sets, which is why each metric reports its own `n_eligible`.
 - **Probably rare.** MIND impressions usually have many non-clicked candidates, so `A` should be small. The inventory reports `n_all_click_impressions` so this can be checked on the real data.
+
+## D-011 Real-data inventory findings (2026-10-28)
+`scripts/inspect_data.py --data data/raw` on MIND-small. The four TSV hashes were
+recorded locally and checked OK. Aggregate counts only.
+
+| | Train | Dev (holdout) |
+|---|---|---|
+| Impressions | 156,965 | 73,152 |
+| Users | 50,000 | 50,000 |
+| News items | 51,282 | 42,416 |
+| Date range | 2019-11-09 to 11-14 | 2019-11-15 only |
+| Candidates per impression (median / max) | 24 / 299 | 23 / 295 |
+| Malformed rows | 0 | 0 |
+
+Confirmed:
+- **The default cut stands; no fallback is needed (D-005).** The cutoff is 2019-11-14 00:00. `fit` is 11-09 to 11-13 (126,695 impressions) and `tune` is 11-14 (30,270, a full day). The weekend days 11-09 and 11-10 have about half the volume of weekdays.
+- **The eligibility rules are moot on this data (D-010).** No impression is no-click, all-click or single-candidate, so all four metrics average over the same impressions.
+- **History is fixed per user.** No user's History differs across rows, and every candidate and history ID is in `news.tsv`.
+- **Dev doesn't overlap train in time.**
+- **Impression IDs restart per file.** All 73,152 dev IDs also occur in train, so any key spanning splits must include the split name (D-007).
+- **Item cold start is severe for fit-only statistics.** Against `fit`, 80.7% of holdout candidate occurrences are unseen (70.96% of unique items). Against all of train, it's 21.3% (46.3%). Against `fit`, 29.2% of tune occurrences are unseen.
+- **Few dev users appear in train impressions** (88.1% don't), but most users have a non-empty History. Only 1,407 dev users have none, against 892 in train. History items rarely appear as train candidates (6%).
