@@ -19,14 +19,24 @@ Citation:
 
 ## What to download
 
-From <https://msnews.github.io/> (check the file names on the download page):
+The download links on <https://msnews.github.io/> point to a gated Hugging Face
+dataset, [`yjw1029/MIND`](https://huggingface.co/datasets/yjw1029/MIND). Before the
+links work:
 
-| Archive | Used as |
-|---|---|
-| `MINDsmall_train.zip` | `fit` and `tune` splits |
-| `MINDsmall_dev.zip` | `holdout` split (locked) |
+1. Sign in to Hugging Face (a free account is enough).
+2. Open the dataset page and accept its access conditions (the Microsoft Research
+   License Terms). Approval is automatic.
+3. Go back to the download links, or use the dataset's "Files and versions" tab.
 
-**Don't** use the MIND-large files, the MIND-large "Test Set" (its labels aren't
+The site lists two groups. The first group (Training, Validation and Test Set) is
+MIND-large. Use only the **MIND-small** group further down:
+
+| Archive | Site label | Used as |
+|---|---|---|
+| `MINDsmall_train.zip` | MIND-small Training Set | `fit` and `tune` splits |
+| `MINDsmall_dev.zip` | MIND-small Validation Set | `holdout` split (locked) |
+
+**Don't** use the `MINDlarge_*` files, the MIND-large "Test Set" (its labels aren't
 public), or third-party mirrors or reformatted CSVs. Their schemas differ and they're
 out of scope.
 
@@ -35,10 +45,13 @@ out of scope.
 ```bash
 mkdir -p data/archives data/raw
 # Move the two downloaded zips into data/archives/, then:
-shasum -a 256 data/archives/MINDsmall_*.zip    # keep these hashes for eval/manifest.json
 unzip data/archives/MINDsmall_train.zip -d data/raw/MINDsmall_train
 unzip data/archives/MINDsmall_dev.zip   -d data/raw/MINDsmall_dev
 ```
+
+Some browsers unzip downloads automatically. Safari does by default and deletes the
+zip. If you got folders instead of zips, move their contents straight into
+`data/raw/MINDsmall_train/` and `data/raw/MINDsmall_dev/`.
 
 Expected layout. The code reads only `news.tsv` and `behaviors.tsv`. The archives
 also contain entity and relation embedding files, which aren't used.
@@ -51,6 +64,28 @@ data/raw/
 
 If an archive unpacks into an extra nested folder, move the files up so the paths
 match the layout above.
+
+## Record the hashes
+
+Run these from the repo root. They record SHA-256 hashes of the four TSVs the code
+reads:
+
+```bash
+shasum -a 256 data/raw/MINDsmall_*/news.tsv data/raw/MINDsmall_*/behaviors.tsv \
+  > data/archives/SHA256SUMS
+cat data/archives/SHA256SUMS                   # four lines: hash, two spaces, path
+shasum -a 256 -c data/archives/SHA256SUMS      # later: every line should say OK
+```
+
+The TSV hashes are what count, because they cover exactly what the code reads. If
+you also kept the zips, add `data/archives/MINDsmall_*.zip` to the first command to
+record which download you used.
+
+`SHA256SUMS` stays local, since `data/archives/` is gitignored. The hashes reveal
+nothing about the data. They are copied into `eval/manifest.json`, which is locked and
+committed before the first holdout run (REC-07). If `-c` reports `FAILED`, the files
+changed since you recorded them, so stop and find out why before running any
+evaluation.
 
 ## Check it
 
