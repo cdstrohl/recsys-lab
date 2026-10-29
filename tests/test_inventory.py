@@ -8,7 +8,8 @@ from pathlib import Path
 import pytest
 from conftest import SYNTHETIC
 
-from recsys.inventory import build_inventory, history_bucket
+from recsys.inventory import build_inventory, history_bucket, split_inventory
+from recsys.loaders import read_behaviors
 
 REPO = Path(__file__).parent.parent
 
@@ -81,6 +82,27 @@ def test_inventory_on_synthetic_fixtures() -> None:
     assert unseen["share_history_items_seen_as_candidate"] == 1.0  # N1, N2, N6
     assert unseen["share_users_unseen"] == pytest.approx(1 / 3)  # U7
     assert unseen["n_impressions_before_reference_end"] == 0
+    assert unseen["n_impression_ids_shared"] == 0
+
+    splits = inv["splits"]
+    assert splits["cutoff"] == "2019-11-11T00:00:00"
+    assert splits["fit"]["n_impressions"] == 7
+    assert splits["fit"]["n_no_click_impressions"] == 1
+    assert splits["tune"]["n_impressions"] == 4
+    assert splits["tune"]["first_timestamp"] == "2019-11-11T00:00:00"
+    # Tune candidates: N3 N14 N1 | N6 N13 | N13 N3 | N13 N14 N3. Fit has N1-N13, not N14.
+    assert splits["tune_vs_fit"]["candidate_occurrences"] == 10
+    assert splits["tune_vs_fit"]["share_occurrences_unseen_as_candidate"] == pytest.approx(2 / 10)
+    assert splits["tune_vs_fit"]["share_unique_unseen_as_candidate"] == pytest.approx(1 / 5)
+    assert splits["holdout_vs_fit"]["share_unique_unseen_as_candidate"] == pytest.approx(5 / 7)
+
+
+def test_split_inventory_reports_impossible_cut(tmp_path: Path) -> None:
+    path = tmp_path / "behaviors.tsv"
+    path.write_text("1\tU1\t11/9/2019 8:00:00 AM\t\tN1-1\n2\tU2\t11/9/2019 9:00:00 AM\t\tN1-0\n")
+    impressions, _ = read_behaviors(path)
+    # Everything falls on the last day, so fit would be empty: reported, not raised.
+    assert "both must be non-empty" in split_inventory(impressions)["error"]
 
 
 def test_inspect_data_script(tmp_path: Path) -> None:

@@ -16,6 +16,7 @@ from typing import Any
 
 from recsys.loaders import DEV_DIR, TRAIN_DIR, MindDir, load_mind_dir
 from recsys.schemas import Impression, NewsItem, ParseReport
+from recsys.splits import assign_splits
 
 # Lower edges of history-length buckets: "0", "1-5", "6+".
 DEFAULT_HISTORY_EDGES: tuple[int, ...] = (0, 1, 6)
@@ -137,7 +138,45 @@ def unseen_inventory(
         "n_impressions_before_reference_end": (
             sum(imp.timestamp < ref_last for imp in target) if ref_last else 0
         ),
+        # MIND may restart impression IDs per file; shared IDs mean keys must include the split.
+        "n_impression_ids_shared": len(
+            {imp.impression_id for imp in reference} & {imp.impression_id for imp in target}
+        ),
     }
+
+
+def _period_summary(impressions: Sequence[Impression]) -> dict[str, Any]:
+    timestamps = [imp.timestamp for imp in impressions]
+    return {
+        "n_impressions": len(impressions),
+        "n_users": len({imp.user_id for imp in impressions}),
+        "first_timestamp": min(timestamps).isoformat() if timestamps else None,
+        "last_timestamp": max(timestamps).isoformat() if timestamps else None,
+        "n_no_click_impressions": sum(imp.n_clicks == 0 for imp in impressions),
+    }
+
+
+def split_inventory(
+    train: Sequence[Impression], dev: Sequence[Impression] | None = None
+) -> dict[str, Any]:
+    """Sizes of the default fit/tune cut and how new tune/dev candidates are relative to fit.
+
+    A cut that can't be made is reported, not raised: it is the signal to pick
+    another cutoff and record it in DECISIONS.md.
+    """
+    try:
+        assignment = assign_splits(train, ())
+    except ValueError as exc:
+        return {"error": str(exc)}
+    summary: dict[str, Any] = {
+        "cutoff": assignment.cutoff.isoformat(),
+        "fit": _period_summary(assignment.fit),
+        "tune": _period_summary(assignment.tune),
+        "tune_vs_fit": unseen_inventory(assignment.fit, assignment.tune),
+    }
+    if dev is not None:
+        summary["holdout_vs_fit"] = unseen_inventory(assignment.fit, dev)
+    return summary
 
 
 def _parse_summary(report: ParseReport) -> dict[str, Any]:
@@ -178,10 +217,13 @@ def build_inventory(data_dir: Path, edges: Sequence[int] = DEFAULT_HISTORY_EDGES
         TRAIN_DIR: _dir_inventory(train, edges),
     }
     dev_dir = data_dir / DEV_DIR
-    if dev_dir.is_dir():
-        dev = load_mind_dir(dev_dir, strict=False)
+    dev = load_mind_dir(dev_dir, strict=False) if dev_dir.is_dir() else None
+    if dev is not None:
         inventory[DEV_DIR] = _dir_inventory(dev, edges)
         inventory["dev_vs_train"] = unseen_inventory(train.impressions, dev.impressions)
+    inventory["splits"] = split_inventory(
+        train.impressions, dev.impressions if dev is not None else None
+    )
     return inventory
 
 
