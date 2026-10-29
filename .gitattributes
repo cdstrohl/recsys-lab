@@ -1,0 +1,2 @@
+# Fixtures are byte-exact (some test CRLF line endings); never normalize them.
+tests/fixtures/** -text
