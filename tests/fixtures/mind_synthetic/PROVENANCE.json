@@ -1,0 +1,18 @@
+{
+  "provenance": "synthetic",
+  "description": "Hand-authored MIND-format rows for parser, inventory, split and metric tests. Not evidence of real user behavior; IDs, titles and clicks are invented.",
+  "labeler": "hand-authored (coding agent, owner-reviewed)",
+  "label_version": "v1",
+  "as_of": "2026-10-28",
+  "files": {
+    "MINDsmall_train/news.tsv": {"split": "train (fit + tune)"},
+    "MINDsmall_train/behaviors.tsv": {"split": "train (fit + tune)"},
+    "MINDsmall_dev/news.tsv": {"split": "holdout"},
+    "MINDsmall_dev/behaviors.tsv": {"split": "holdout"}
+  },
+  "edge_cases": {
+    "train news": "empty abstract (N2, N7); empty entity fields (N7); quote character (N5); non-ASCII (N8); several categories incl. sports",
+    "train behaviors": "empty history (U2); no-click (3); multiple clicks (2, 5); all candidates clicked (5, 6); single candidate (6); 3 and 12 candidates (1, 4); last second before cutoff (7) and exactly at cutoff (8); identical timestamps (9, 10); same user in fit and tune (U1); 12:00 AM and 12:30 PM parsing; history of 7 items (U6)",
+    "dev": "candidates unseen in train (N15-N18); user unseen in train (U7); candidate missing from every news.tsv (N99); no-click (103)"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "provenance": "synthetic",
+  "description": "Hand-authored MIND-format rows with one defect per line, for parser error handling.",
+  "labeler": "hand-authored (coding agent, owner-reviewed)",
+  "label_version": "v1",
+  "as_of": "2026-10-28",
+  "files": {
+    "behaviors_malformed.tsv": {
+      "split": "none (parser tests only)",
+      "lines": {
+        "1": "ok",
+        "2": "column_count (4 columns)",
+        "3": "bad_timestamp (ISO format)",
+        "4": "bad_candidate (label 2)",
+        "5": "bad_candidate (no label)",
+        "6": "empty_candidates",
+        "7": "blank line (skipped, counted)",
+        "8": "duplicate_id (impression 1)",
+        "9": "bad_timestamp (13 PM)",
+        "10": "duplicate_candidate",
+        "11": "ok (CRLF line ending)",
+        "12": "empty_id (user)"
+      }
+    },
+    "news_malformed.tsv": {
+      "split": "none (parser tests only)",
+      "lines": {
+        "1": "ok (empty abstract)",
+        "2": "column_count (5 columns)",
+        "3": "duplicate_id (N2)",
+        "4": "empty_id",
+        "5": "blank line (skipped, counted)",
+        "6": "column_count (9 columns)",
+        "7": "ok (CRLF line ending, empty trailing columns)"
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+N2	sports	basketball_nba	[synthetic] Rookie scores 30 in debut		https://example.invalid/news/N2	[]	[]
+N20	news	newsus	[synthetic] Too few columns	
+N2	news	newsus	[synthetic] City council approves budget	[synthetic] Vote passes 7 to 2.	https://example.invalid/news/N3	[]	[]
+	news	newsus	[synthetic] Missing ID		https://example.invalid/news/x	[]	[]
+
+N4	finance	finance-companies	[synthetic] Retailer posts quarterly results	[synthetic] Revenue up slightly.	https://example.invalid/news/N4	[]	[]	extra
+N7	weather	weathertopstories	[synthetic] Storm expected Tuesday		https://example.invalid/news/N7		
