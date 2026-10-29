@@ -55,3 +55,27 @@ control.
 - The optional `since` window is inclusive at its lower bound.
 - The index is built only from `statistics_source()`. When scoring `tune` or `holdout`, popularity therefore reflects `fit` clicks only, not earlier clicks in the scored split.
 - The inventory reports `n_impression_ids_shared` between train and dev. If MIND restarts IDs per file, any key that spans splits must include the split name.
+
+## D-008 Ties (REC-03)
+- **MRR and nDCG:** these need a strict order. Candidates are sorted by score descending, then by a 64-bit key `blake2b(seed, impression_id, news_id)` ascending.
+- **Properties of the key:** it's deterministic for a given seed and independent of the order candidates appear in the row. Row order may carry information, so it's never used.
+- **What a tied MRR or nDCG means:** each is one seeded draw of the tie order, not the expectation over all tie orders. A model that ties often can move with the seed, which is why `n_tied` is reported.
+- **AUC:** a tied (clicked, non-clicked) pair counts 0.5, as in Mann-Whitney and sklearn. That equals the expected AUC under a uniformly random tie order, so AUC needs no key.
+- **Parity:** the official MIND script breaks ties by array position, so parity tests use tie-free cases only.
+- **Finite scores:** scores must be finite. NaN or inf raises an error, so a broken model can't silently produce a ranking.
+
+## D-009 MRR and nDCG definitions (REC-03)
+- **MRR is MIND-style:** the mean of `1/rank` over **all** clicked candidates in the impression, then averaged across impressions. With `c` clicks, even a perfect ranking scores `H_c / c` (for example 0.75 for two clicks), not 1. This isn't "first relevant item" MRR, and reports label it as MIND-style.
+- **nDCG@k:** gain `2^rel - 1` (1 for a click) and discount `log2(rank + 1)`. With `n < k` candidates, DCG and ideal DCG both run over min(k, n) positions, so a short list isn't penalized for positions it doesn't have.
+
+## D-010 Eligibility: no-click and all-click impressions (REC-03)
+- **No-click impressions** (no clicked candidate) are excluded from **every** metric and counted (`n_no_click`). Every metric is undefined on them.
+- **All-click impressions** (every candidate clicked, including single-candidate impressions with a click) are excluded from **AUC only** and counted (`n_all_click`), by owner decision. MRR and nDCG still include them. Each metric reports its own `n_eligible`.
+
+Consequences, for an all-click impression with `n` candidates:
+- **Scores don't matter on these impressions.** nDCG@k = 1 for every ranking, because every position has gain 1, so DCG = ideal DCG. MRR = `H_n / n`, where `H_n = 1 + 1/2 + ... + 1/n` (1, 0.75 and 0.611 for n = 1, 2, 3).
+- **Model ordering is safe.** Every model gets the same constant from them, so with `E` impressions that have a click and a non-click and `A` all-click impressions, the order of models by mean MRR or nDCG doesn't change.
+- **Absolute gaps shrink.** A per-impression gap Δ on the `E` impressions becomes `E·Δ / (E + A)`.
+- **Relative gaps shrink further, because the mean moves toward the constant.** The nDCG lift of model M over baseline B goes from `Δ / m_B` to `E·Δ / (E·m_B + A)`. This matters for the "≥5% relative nDCG@10" research question, so reports state `n_all_click`.
+- **Different denominators.** AUC averages over `E` impressions; MRR and nDCG average over `E + A`. Their per-impression means come from different sets, which is why each metric reports its own `n_eligible`.
+- **Probably rare.** MIND impressions usually have many non-clicked candidates, so `A` should be small. The inventory reports `n_all_click_impressions` so this can be checked on the real data.

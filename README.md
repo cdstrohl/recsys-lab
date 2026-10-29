@@ -2,7 +2,8 @@
 
 **Status: `in-progress`.** Offline evaluation lab for news recommendation on
 [Microsoft MIND-small](https://msnews.github.io/). There are no results yet. The
-parser and data inventory are in place and tested on synthetic fixtures.
+parser, data inventory, split policy and ranking metrics are in place and tested on
+synthetic fixtures. No models have been run.
 
 The question: which ranking approach is worth shipping for a news feed, across
 cold-start and history-rich users, once quality, complexity and inference cost are
@@ -53,8 +54,22 @@ uv run python scripts/inspect_data.py --data tests/fixtures/mind_synthetic
 **Metrics.** Computed per impression, then averaged:
 - nDCG@10 (headline)
 - nDCG@5
-- MIND-style MRR
-- AUC
+- MIND-style MRR: the mean of 1/rank over *all* clicked items, not just the first
+- AUC: tied pairs count 0.5
+
+**Which impressions count.**
+- No-click impressions are excluded from every metric.
+- All-click impressions are excluded from AUC only.
+- Every exclusion is counted and reported.
+
+**Short lists.** With fewer than k candidates, nDCG@k's ideal DCG uses min(k, n).
+
+The optional parity test against MIND's official `evaluate.py` runs only if you
+supply a local copy (it isn't committed):
+
+```bash
+MIND_EVAL_PY=/path/to/evaluate.py uv run --with scikit-learn pytest -k parity
+```
 
 **Leakage rules.**
 - Popularity is as-of: it counts only clicks strictly before the impression.
