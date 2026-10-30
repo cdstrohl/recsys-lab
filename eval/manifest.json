@@ -1,0 +1,25 @@
+{
+  "manifest_version": "v1",
+  "data_provenance": "real_licensed",
+  "files": {
+    "MINDsmall_train/news.tsv": "cd49d7da275e9c405f627d75a0de9d4ec6ad43ff8a8db5d23a447591676e09d6",
+    "MINDsmall_train/behaviors.tsv": "a424547c8fa17c9ea4879c2110221c2b2f2709f4f7615ede0b0d8e4765158658",
+    "MINDsmall_dev/news.tsv": "e5d144667558c449d16084fe6bfa01940c2f5d5785ea9f9110292bc3b94eb822",
+    "MINDsmall_dev/behaviors.tsv": "b6c460e33b1a8693252ded6e626da7d3ccf78920eea2ec11889020bb7d8443ef"
+  },
+  "split_rule": {
+    "fit": "MINDsmall_train impressions with timestamp < cutoff",
+    "tune": "MINDsmall_train impressions with timestamp >= cutoff",
+    "holdout": "all MINDsmall_dev impressions (locked)",
+    "cutoff": "2019-11-14T00:00:00",
+    "cutoff_rule": "midnight starting the calendar date of the latest train impression"
+  },
+  "row_counts": {
+    "fit": 126695,
+    "tune": 30270,
+    "holdout": 73152
+  },
+  "label_version": "MIND-small original click labels, unmodified",
+  "eligibility": "no-click excluded from all metrics; all-click excluded from AUC (D-010)",
+  "tie_break": "seeded blake2b(seed, impression_id, news_id) (D-008)"
+}
