@@ -25,3 +25,6 @@ dist/
 # Environment and OS
 .env
 .DS_Store
+
+# Smoke-run outputs on synthetic fixtures
+results/synthetic/

@@ -1,0 +1,25 @@
+# Smoke run on the SYNTHETIC fixtures (outputs labeled synthetic, gitignored).
+# Parameters are fixed in advance, not tuned; see DECISIONS.md D-012 to D-017.
+data_dir: tests/fixtures/mind_synthetic
+data_provenance: synthetic      # PROVENANCE.json in the fixture dir also says synthetic
+seed: 13
+splits: [tune, holdout]
+holdout_statistics: fit+tune     # fit | fit+tune (documented final refit, D-014)
+ks: [5, 10]
+history_edges: [0, 1, 6, 21, 51] # buckets 0, 1-5, 6-20, 21-50, 51+
+baseline: popularity
+bootstrap_samples: 200
+coverage_k: 10
+models:
+  - name: random
+  - name: popularity
+  - name: category_affinity
+  - name: tfidf
+    params:
+      stop_words: english
+      sublinear_tf: true
+      min_df: 1
+outputs:
+  results_dir: results/synthetic
+  report: results/synthetic/baseline_results.md
+  manifest: results/synthetic/manifest.json

@@ -101,3 +101,46 @@ Confirmed:
 - **Impression IDs restart per file.** All 73,152 dev IDs also occur in train, so any key spanning splits must include the split name (D-007).
 - **Item cold start is severe for fit-only statistics.** Against `fit`, 80.7% of holdout candidate occurrences are unseen (70.96% of unique items). Against all of train, it's 21.3% (46.3%). Against `fit`, 29.2% of tune occurrences are unseen.
 - **Few dev users appear in train impressions** (88.1% don't), but most users have a non-empty History. Only 1,407 dev users have none, against 892 in train. History items rarely appear as train candidates (6%).
+
+## D-012 Ranker interface (REC-04 to REC-06)
+- **Requests carry no labels.** Every ranker sees a `RankRequest`: impression ID, user, timestamp, History and candidate IDs. Click labels reach only the metrics. A test pins the request's fields, and other tests flip tune and holdout labels and check that every ranker's scores are unchanged.
+- **Output.** `score(request)` returns `Ranking(scores, fallback)`. A higher score ranks higher, and remaining ties go to the seeded key (D-008). `fallback` is set when a personalized ranker had no usable History and used the popularity order instead.
+- **Composite keys.** Rankers that order by several keys (for example, affinity then popularity) return dense ranks of the key tuple (`lexicographic_scores`). Two candidates tie only if every key is equal, and nothing depends on weights or float scaling.
+- **Shared tie-breaker.** Both personalized rankers break their own ties by the popularity order and fall back to it for cold-start users. Any difference from `popularity` therefore comes from the personalized signal alone, and on zero-history users they equal `popularity` by construction.
+- **No tuning.** Every parameter was fixed before any real-data run, and none was changed after seeing the tune results. A later tuning pass would select on `tune` only and get its own entry.
+
+## D-013 Item metadata and the TF-IDF corpus (REC-05, REC-06)
+- **Metadata from both files.** Category, subcategory, title and abstract come from the union of train and dev `news.tsv`, with train's row kept for a shared ID. This is item content known when an item is shown, not a label, and without it no dev-only item could be scored by content.
+- **Fitting corpus.** The TF-IDF vocabulary and IDF are fitted only on items referenced (History or candidate) by the statistics source (D-014), never on the scored split. Words that first appear in dev items are ignored.
+- **Missing items.** An ID missing from both `news.tsv` files gets 0 on every content and popularity key.
+
+## D-014 Statistics source per split (REC-07)
+| Scored split | Rankers fitted on |
+|---|---|
+| `tune` | `fit` |
+| `holdout` | `fit` + `tune` (the spec's documented final refit; `holdout_statistics` in the config) |
+
+- **Dev clicks are never features,** not even as-of within dev. The spec limits features to `fit` / `fit`+`tune`, and the owner asked that validation labels never be features. As a result, holdout popularity is up to a day stale, and items first shown in dev have no click count. That is 21.3% of holdout candidate occurrences against all of train, or 80.7% against `fit` alone (D-011).
+- **History is used as given,** not augmented with in-window clicks, for every ranker. Augmentation is allowed by the spec if strictly time-ordered, and is left as a future ablation. Most dev users (88.1%) never appear in train impressions anyway.
+
+## D-015 Ranker definitions (REC-04 to REC-06)
+- **`random`.** Seeded `blake2b` scores, salted so they're independent of the metrics' tie keys.
+- **`popularity`.** Keys are (item clicks, category clicks), both as-of and strictly before the impression (D-007), from the statistics source.
+- **`category_affinity`.** Keys are (# known History items in the candidate's category + # in its (category, subcategory)), then the popularity keys. Dividing by History length is skipped because it doesn't change the order within an impression. History IDs missing from `news.tsv` are ignored, and if none remain, the ranker falls back.
+- **`tfidf`.** The text is title + abstract. Vectorizer settings: English stop words, sublinear TF, `min_df=2`, L2-normalized rows. The user vector is the mean of the History item vectors, renormalized. Keys are (cosine, popularity keys). The ranker falls back if the user vector is zero: empty History, unknown items only, or no in-vocabulary terms.
+
+## D-016 Reporting (REC-07)
+- **Segments.** Each impression goes into a bucket by its History length, using edges `0, 1-5, 6-20, 21-50, 51+` from the config, finer than the spec's example. History is fixed per user (D-011), so the segments partition users as well as impressions.
+- **Intervals.** User-grouped percentile bootstrap: 1,000 resamples, seed 13, 95%. A resample draws users with replacement and averages over all their impressions. Deltas against `popularity` use the same resamples, so they're paired. The intervals treat the logged candidate sets as fixed.
+- **Costs.** `coverage@10` is the share of distinct candidate items placed in the top 10 of at least one impression. Latency is the wall time of `score()` per impression, as p50 and p95, in single-threaded Python on the owner's laptop. It excludes loading and fitting. Fit time is reported once per split for all models together, since they share the popularity index.
+- **Tie counts.** `n_tied` counts impressions with any tied score, including ties that don't affect the metrics, so it's an upper bound on how much the seeded draw matters.
+
+## D-017 Manifest and outputs (REC-07)
+- **Manifest lock.** `eval/manifest.json` (v1: four TSV hashes, cutoff, split rule, row counts, label version) is locked with `--lock-manifest` and committed before the first holdout run. The runner refuses a holdout run if it's missing or doesn't match the data. Re-locking requires deleting the file by hand.
+- **Order of runs.** Tune results were looked at once, as a bug check, before the lock. Nothing changed as a result.
+- **Outputs.** All are written by `scripts/evaluate.py`:
+  - `results/experiments.json`: every split, model, metric, interval and segment
+  - `results/summary.json`: the `07` §9 export, holdout only, written only when holdout was evaluated
+  - `reports/baseline_results.md`: tables and observations computed from the JSON
+- **Privacy.** Outputs hold aggregate numbers only, and a test checks for user IDs and article text.
+- **Deferred.** Segment figures, a sports slice and the interpretive memo (what to ship first) are left for a later ticket.

@@ -1,0 +1,25 @@
+# Baseline benchmark (REC-04 to REC-07). Paths are relative to the repo root.
+# Parameters are fixed in advance, not tuned; see DECISIONS.md D-012 to D-017.
+data_dir: data/raw
+data_provenance: real_licensed   # used only when data_dir has no PROVENANCE.json
+seed: 13
+splits: [tune, holdout]
+holdout_statistics: fit+tune     # fit | fit+tune (documented final refit, D-014)
+ks: [5, 10]
+history_edges: [0, 1, 6, 21, 51] # buckets 0, 1-5, 6-20, 21-50, 51+
+baseline: popularity
+bootstrap_samples: 1000
+coverage_k: 10
+models:
+  - name: random
+  - name: popularity
+  - name: category_affinity
+  - name: tfidf
+    params:
+      stop_words: english
+      sublinear_tf: true
+      min_df: 2
+outputs:
+  results_dir: results
+  report: reports/baseline_results.md
+  manifest: eval/manifest.json
