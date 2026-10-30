@@ -1,0 +1,230 @@
+{
+  "project": "recsys-lab",
+  "generated_at": "2026-10-30T02:01:34+00:00",
+  "git_sha": "9c8c200",
+  "manifest_version": "v1",
+  "reproduce": "uv run python scripts/evaluate.py --config configs/baseline.yaml",
+  "data_provenance": [
+    "real_licensed"
+  ],
+  "metrics": [
+    {
+      "name": "NDCG@10",
+      "model": "random",
+      "value": 0.2859985136615506,
+      "ci95": [
+        0.28363645073829713,
+        0.28835232571535324
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.3136010811666588
+    },
+    {
+      "name": "NDCG@10",
+      "model": "popularity",
+      "value": 0.3136010811666588,
+      "ci95": [
+        0.3108763436621481,
+        0.3161554975135417
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.3136010811666588
+    },
+    {
+      "name": "NDCG@10",
+      "model": "category_affinity",
+      "value": 0.3864817210471241,
+      "ci95": [
+        0.38401155930196484,
+        0.3888896964422099
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.3136010811666588
+    },
+    {
+      "name": "NDCG@10",
+      "model": "tfidf",
+      "value": 0.35975055241706405,
+      "ci95": [
+        0.3572715028314748,
+        0.3623184760101642
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.3136010811666588
+    },
+    {
+      "name": "NDCG@5",
+      "model": "random",
+      "value": 0.2223914147639955,
+      "ci95": [
+        0.22010332652203368,
+        0.2248156995970715
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.25341704022996714
+    },
+    {
+      "name": "NDCG@5",
+      "model": "popularity",
+      "value": 0.25341704022996714,
+      "ci95": [
+        0.25078924408942643,
+        0.2560781680182721
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.25341704022996714
+    },
+    {
+      "name": "NDCG@5",
+      "model": "category_affinity",
+      "value": 0.3276777014519601,
+      "ci95": [
+        0.32476733005500263,
+        0.33043736081339736
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.25341704022996714
+    },
+    {
+      "name": "NDCG@5",
+      "model": "tfidf",
+      "value": 0.2984538639215084,
+      "ci95": [
+        0.2959125067775873,
+        0.3011766421468874
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.25341704022996714
+    },
+    {
+      "name": "MRR (MIND-style)",
+      "model": "random",
+      "value": 0.21875324185747871,
+      "ci95": [
+        0.21682927010888586,
+        0.22083035569956946
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.2426300734293296
+    },
+    {
+      "name": "MRR (MIND-style)",
+      "model": "popularity",
+      "value": 0.2426300734293296,
+      "ci95": [
+        0.24026825427593038,
+        0.24475212273171765
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.2426300734293296
+    },
+    {
+      "name": "MRR (MIND-style)",
+      "model": "category_affinity",
+      "value": 0.29999707595720604,
+      "ci95": [
+        0.2976268540464725,
+        0.3021969441121999
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.2426300734293296
+    },
+    {
+      "name": "MRR (MIND-style)",
+      "model": "tfidf",
+      "value": 0.27898800998430323,
+      "ci95": [
+        0.27680784894715843,
+        0.28133312633148516
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.2426300734293296
+    },
+    {
+      "name": "AUC",
+      "model": "random",
+      "value": 0.4996559820411588,
+      "ci95": [
+        0.49749011588159336,
+        0.501848042141172
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.5461910533135884
+    },
+    {
+      "name": "AUC",
+      "model": "popularity",
+      "value": 0.5461910533135884,
+      "ci95": [
+        0.5441323615462968,
+        0.548243092988755
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.5461910533135884
+    },
+    {
+      "name": "AUC",
+      "model": "category_affinity",
+      "value": 0.6223455159911161,
+      "ci95": [
+        0.6200751438713872,
+        0.6245650950115146
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.5461910533135884
+    },
+    {
+      "name": "AUC",
+      "model": "tfidf",
+      "value": 0.5835499617003038,
+      "ci95": [
+        0.5814822464448778,
+        0.5857460767318207
+      ],
+      "split": "holdout",
+      "n": 73152,
+      "baseline": "popularity",
+      "baseline_value": 0.5461910533135884
+    }
+  ],
+  "figures": [],
+  "limitations": [
+    "Offline ranking metrics on logged MIND-small impressions only; they are not engagement, CTR or business-impact estimates.",
+    "Labels come from impressions served by Microsoft News's own 2019 system, so they reflect that system's exposure; offline metrics can't predict online behavior.",
+    "General news from November 2019; results don't show sports-specific behavior.",
+    "MIND-small numbers aren't comparable to the public MIND leaderboard (scored on MIND-large test).",
+    "Holdout statistics come from fit + tune (train) only; dev clicks are never features, so popularity is up to a day stale and items first shown in dev have no click history.",
+    "Ties are broken by one seeded draw (D-008); MRR and nDCG of tie-heavy models can move with the seed. AUC counts ties as 0.5.",
+    "Bootstrap intervals resample users and treat the logged candidate sets as fixed."
+  ]
+}
