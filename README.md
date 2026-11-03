@@ -115,10 +115,10 @@ The optional parity test against MIND's official `evaluate.py` runs only if you
 supply a local copy. It isn't committed. The script is in Microsoft's
 [msnews/MIND](https://github.com/msnews/MIND) repository, and the MIND competition page
 on CodaLab offers it too. Keep it outside the repo, or under the gitignored
-`data/archives/`:
+`data/archives/`. Parity passed on 2026-11-03 (D-019):
 
 ```bash
-MIND_EVAL_PY=/path/to/evaluate.py uv run --with scikit-learn pytest -k parity
+MIND_EVAL_PY=data/archives/mind_evaluate.py uv run pytest -k parity
 ```
 
 **Leakage rules.**
