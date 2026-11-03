@@ -1,7 +1,7 @@
 {
   "project": "recsys-lab",
-  "generated_at": "2026-10-30T02:01:34+00:00",
-  "git_sha": "9c8c200",
+  "generated_at": "2026-11-03T20:41:55+00:00",
+  "git_sha": "1ebfcd0",
   "manifest_version": "v1",
   "reproduce": "uv run python scripts/evaluate.py --config configs/baseline.yaml",
   "data_provenance": [
@@ -217,7 +217,9 @@
       "baseline_value": 0.5461910533135884
     }
   ],
-  "figures": [],
+  "figures": [
+    "results/figures/ndcg_by_history.png"
+  ],
   "limitations": [
     "Offline ranking metrics on logged MIND-small impressions only; they are not engagement, CTR or business-impact estimates.",
     "Labels come from impressions served by Microsoft News's own 2019 system, so they reflect that system's exposure; offline metrics can't predict online behavior.",
