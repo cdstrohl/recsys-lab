@@ -88,6 +88,19 @@ The report includes a hand-written interpretation, `reports/interpretation.md`, 
 By rule it holds no numbers, and a test checks that, so every figure in the report
 comes from the generated JSON.
 
+### Tune-only diagnostics
+
+```bash
+uv run python scripts/diagnose.py --config configs/diagnostics.yaml
+```
+
+This reads `MINDsmall_train` only; the holdout is never loaded. It scores each train
+day with rankers fitted on the earlier days (a rolling-origin stability check) and
+tests ablation variants on the tune protocol. It writes
+`results/tune_diagnostics.json` and
+[reports/tune_diagnostics.md](reports/tune_diagnostics.md). The decision rules are
+recorded in DECISIONS.md D-020, and the findings in D-021.
+
 ## Evaluation design
 
 **Splits**

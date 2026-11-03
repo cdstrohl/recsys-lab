@@ -183,3 +183,34 @@ On 2026-11-03 the owner downloaded `evaluate.py` from [msnews/MIND](https://gith
 - Candidates are added as new named models and evaluated in the single Phase 3 holdout run. The v1 baseline config and its holdout numbers stay unchanged.
 
 **Bootstrap.** 500 user-grouped resamples, to keep run time manageable.
+
+## D-021 Phase 2 findings (tune-only; holdout untouched)
+Source: `results/tune_diagnostics.json` and `reports/tune_diagnostics.md`, generated at `4f77307`, which is also where D-020 was committed. The 11-14 row reproduces the committed tune numbers exactly, so the ranker refactor changed no behavior.
+
+**The flip comes from day-to-day drift, not the tie-break. H1 is mostly not supported.**
+- Paired nDCG@10 gap, `tfidf` minus `category_affinity`, by scored day:
+
+  | | 11-11 | 11-12 | 11-13 | 11-14 |
+  |---|---|---|---|---|
+  | popularity tie-breaks | −0.006 | −0.013 | +0.005 | +0.014 |
+  | random tie-breaks | −0.001 (CI includes 0) | −0.007 | +0.006 | +0.014 |
+
+  With random tie-breaks the gap moves almost the same way, so prediction 1 fails.
+- The tie-break helps `category_affinity` more on days when popularity is stronger: +0.005 and +0.007 on 11-11 and 11-12, against +0.001 on 11-13 and 11-14. That matches prediction 2's direction, but it accounts for a small part of the swing.
+- On tune, `category_affinity`'s deficit isn't monotone in the unclicked share, so prediction 3 isn't supported.
+- **Consequence:** which content ranker leads changes from day to day. Holdout (11-15) favored `category_affinity`, like 11-11 and 11-12. A single tune day isn't a reliable selector between them. Phase 3 should choose models and fit hybrid weights across several rolling-origin days, not 11-14 alone, and judge a hybrid on whether it holds up on every day.
+
+**Ablations (tune protocol). Under the D-020 rule, five variants become Phase 3 candidates.**
+
+| Variant | Δ nDCG@10 vs base [95% CI] |
+|---|---|
+| `popularity_24h` | +0.0049 [+0.0035, +0.0063] |
+| `popularity_48h` | +0.0009 [+0.0003, +0.0016] (smaller than `popularity_24h`, but it passes the rule) |
+| `category_affinity_aug` | +0.0045 [+0.0033, +0.0057]; zero-History users +0.030 [+0.013, +0.049] |
+| `tfidf_aug` | +0.0046 [+0.0033, +0.0061] |
+| `category_affinity_pop24h` | +0.0008 [+0.0003, +0.0014] |
+
+- **Not a candidate:** `tfidf_pop24h`, −0.0002 with an interval that includes 0.
+- **Augmentation helps cold start on tune.** Fallbacks drop from 772 to 160 tune impressions.
+- **Expect a smaller effect on holdout.** 88.1% of dev users never appear in train impressions (D-011), so augmentation can only reach a minority of them.
+- **What adoption means.** Candidates are added to the Phase 3 holdout run as named models. The v1 baseline config and its committed holdout numbers stay unchanged.
