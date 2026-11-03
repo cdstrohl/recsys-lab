@@ -20,10 +20,11 @@ the user has no usable History (user cold start).
 
 from __future__ import annotations
 
-from collections import Counter
+from bisect import bisect_left
+from collections import Counter, defaultdict
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Protocol
 
 import numpy as np
@@ -95,7 +96,8 @@ class RandomRanker:
 
     name = "random"
 
-    def __init__(self, seed: int) -> None:
+    def __init__(self, seed: int, *, name: str = "random") -> None:
+        self.name = name
         self.seed = seed
 
     def score(self, request: RankRequest) -> Ranking:
@@ -108,14 +110,24 @@ class PopularityRanker:
     """As-of click counts on the item, ties broken by as-of click counts on its category.
 
     Only clicks strictly before the request's timestamp, from the statistics source,
-    count (D-007). Items never clicked there score 0 on the first key, so the
-    category key orders the cold-start items.
+    count (D-007). With `window_hours`, only clicks in the last `window_hours` before
+    the request count, for both keys (D-020). Items never clicked there score 0 on the
+    first key, so the category key orders the cold-start items.
     """
 
     name = "popularity"
 
-    def __init__(self, stats: Sequence[Impression], news: Mapping[str, NewsItem]) -> None:
+    def __init__(
+        self,
+        stats: Sequence[Impression],
+        news: Mapping[str, NewsItem],
+        *,
+        window_hours: float | None = None,
+        name: str = "popularity",
+    ) -> None:
+        self.name = name
         self._news = news
+        self._window = timedelta(hours=window_hours) if window_hours is not None else None
         events = click_events(stats)
         self._items = AsOfClickIndex(events)
         self._categories = AsOfClickIndex(
@@ -125,9 +137,12 @@ class PopularityRanker:
     def keys(self, request: RankRequest) -> tuple[FloatArray, FloatArray]:
         """(item clicks, category clicks) per candidate; unknown items get 0 for both."""
         t = request.timestamp
-        items = self._items.counts_before(request.candidate_ids, t)
+        since = t - self._window if self._window is not None else None
+        items = self._items.counts_before(request.candidate_ids, t, since=since)
         categories = [
-            self._categories.count_before(self._news[n].category, t) if n in self._news else 0
+            self._categories.count_before(self._news[n].category, t, since=since)
+            if n in self._news
+            else 0
             for n in request.candidate_ids
         ]
         return np.asarray(items, dtype=np.float64), np.asarray(categories, dtype=np.float64)
@@ -136,7 +151,73 @@ class PopularityRanker:
         return Ranking(lexicographic_scores(*self.keys(request)))
 
 
-class CategoryAffinityRanker:
+class HistoryAugmenter:
+    """The user's History plus their own clicks in the statistics source before the request.
+
+    Clicks strictly before the request's timestamp are appended in time order, skipping
+    items already present (D-020). History itself carries no timestamps and is kept
+    as given. Never built from the scored split.
+    """
+
+    def __init__(self, stats: Iterable[Impression]) -> None:
+        by_user: dict[str, list[tuple[datetime, str]]] = defaultdict(list)
+        for imp in stats:
+            by_user[imp.user_id].extend(
+                (imp.timestamp, c.news_id) for c in imp.candidates if c.clicked
+            )
+        self._times: dict[str, list[datetime]] = {}
+        self._items: dict[str, list[str]] = {}
+        for user, events in by_user.items():
+            events.sort()
+            self._times[user] = [t for t, _ in events]
+            self._items[user] = [n for _, n in events]
+
+    def history(self, request: RankRequest) -> tuple[str, ...]:
+        times = self._times.get(request.user_id)
+        if not times:
+            return request.history
+        earlier = self._items[request.user_id][: bisect_left(times, request.timestamp)]
+        seen = set(request.history)
+        extra = []
+        for news_id in earlier:
+            if news_id not in seen:
+                seen.add(news_id)
+                extra.append(news_id)
+        return request.history + tuple(extra)
+
+
+class _Personalized:
+    """Shared plumbing: History source, popularity tie-break and cold-start fallback.
+
+    `tie_break=False` leaves ties among equal personalized scores to the metrics'
+    seeded key (a diagnostic variant, D-020); the cold-start fallback still uses
+    popularity, so variants differ only for users with usable History.
+    """
+
+    def __init__(
+        self,
+        popularity: PopularityRanker,
+        *,
+        tie_break: bool = True,
+        augmenter: HistoryAugmenter | None = None,
+    ) -> None:
+        self._popularity = popularity
+        self._tie_break = tie_break
+        self._augmenter = augmenter
+
+    def _history(self, request: RankRequest) -> tuple[str, ...]:
+        return self._augmenter.history(request) if self._augmenter else request.history
+
+    def _fallback(self, request: RankRequest) -> Ranking:
+        return Ranking(self._popularity.score(request).scores, fallback=True)
+
+    def _rank(self, request: RankRequest, primary: npt.ArrayLike) -> Ranking:
+        if not self._tie_break:
+            return Ranking(lexicographic_scores(primary))
+        return Ranking(lexicographic_scores(primary, *self._popularity.keys(request)))
+
+
+class CategoryAffinityRanker(_Personalized):
     """History share of the candidate's category plus that of its subcategory.
 
     For a History of n known items, a candidate scores (#same category + #same
@@ -147,14 +228,23 @@ class CategoryAffinityRanker:
 
     name = "category_affinity"
 
-    def __init__(self, popularity: PopularityRanker, news: Mapping[str, NewsItem]) -> None:
-        self._popularity = popularity
+    def __init__(
+        self,
+        popularity: PopularityRanker,
+        news: Mapping[str, NewsItem],
+        *,
+        name: str = "category_affinity",
+        tie_break: bool = True,
+        augmenter: HistoryAugmenter | None = None,
+    ) -> None:
+        super().__init__(popularity, tie_break=tie_break, augmenter=augmenter)
+        self.name = name
         self._news = news
 
     def score(self, request: RankRequest) -> Ranking:
-        profile = [self._news[h] for h in request.history if h in self._news]
+        profile = [self._news[h] for h in self._history(request) if h in self._news]
         if not profile:
-            return Ranking(self._popularity.score(request).scores, fallback=True)
+            return self._fallback(request)
         categories = Counter(item.category for item in profile)
         subcategories = Counter((item.category, item.subcategory) for item in profile)
         affinity = [
@@ -163,21 +253,52 @@ class CategoryAffinityRanker:
             else 0
             for n in request.candidate_ids
         ]
-        return Ranking(lexicographic_scores(affinity, *self._popularity.keys(request)))
+        return self._rank(request, affinity)
 
 
 def news_text(item: NewsItem) -> str:
     return f"{item.title} {item.abstract}".strip()
 
 
-class TfidfRanker:
+class TfidfIndex:
+    """TF-IDF item vectors and cached user vectors, shared by every TF-IDF ranker variant.
+
+    The vocabulary and IDF are fitted on `corpus_ids` (the news items referenced by
+    the statistics source), never on the scored split. Item rows are L2-normalized.
+    """
+
+    def __init__(
+        self, news: Mapping[str, NewsItem], corpus_ids: Iterable[str], **vectorizer_params: Any
+    ) -> None:
+        corpus = sorted({n for n in corpus_ids if n in news})
+        if not corpus:
+            raise ValueError("TF-IDF needs at least one known news item to fit on")
+        self.vectorizer = TfidfVectorizer(**vectorizer_params)
+        self.vectorizer.fit([news_text(news[n]) for n in corpus])
+        ids = sorted(news)
+        self.row = {n: i for i, n in enumerate(ids)}
+        self.matrix = self.vectorizer.transform([news_text(news[n]) for n in ids]).tocsr()
+        self._user_cache: dict[tuple[str, ...], FloatArray | None] = {}
+
+    def user_vector(self, history: tuple[str, ...]) -> FloatArray | None:
+        """Unit-length mean of the History item vectors, or None if it would be zero."""
+        if history not in self._user_cache:
+            rows = [self.row[h] for h in history if h in self.row]
+            vector: FloatArray | None = None
+            if rows:
+                mean = np.asarray(self.matrix[rows].mean(axis=0)).ravel()
+                norm = float(np.linalg.norm(mean))
+                vector = mean / norm if norm > 0 else None
+            self._user_cache[history] = vector
+        return self._user_cache[history]
+
+
+class TfidfRanker(_Personalized):
     """Cosine similarity between candidate and user TF-IDF vectors over title + abstract.
 
-    The vocabulary and IDF are fitted on the news items referenced (History or
-    candidate) by the statistics source, never on the scored split. Item vectors are
-    L2-normalized; the user vector is their mean over known History items. Ties
-    (e.g. zero similarity) are broken by popularity order. A user with no known
-    History item, or whose History has no in-vocabulary term, falls back to popularity.
+    The user vector is the mean of the known History item vectors. Ties (e.g. zero
+    similarity) are broken by popularity order. A user with no known History item, or
+    whose History has no in-vocabulary term, falls back to popularity.
     """
 
     name = "tfidf"
@@ -185,47 +306,31 @@ class TfidfRanker:
     def __init__(
         self,
         popularity: PopularityRanker,
-        news: Mapping[str, NewsItem],
-        corpus_ids: Iterable[str],
-        **vectorizer_params: Any,
+        index: TfidfIndex,
+        *,
+        name: str = "tfidf",
+        tie_break: bool = True,
+        augmenter: HistoryAugmenter | None = None,
     ) -> None:
-        self._popularity = popularity
-        corpus = sorted({n for n in corpus_ids if n in news})
-        if not corpus:
-            raise ValueError("TF-IDF needs at least one known news item to fit on")
-        self._vectorizer = TfidfVectorizer(**vectorizer_params)
-        self._vectorizer.fit([news_text(news[n]) for n in corpus])
-        ids = sorted(news)
-        self._row = {n: i for i, n in enumerate(ids)}
-        self._matrix = self._vectorizer.transform([news_text(news[n]) for n in ids]).tocsr()
-        self._user_cache: dict[tuple[str, ...], FloatArray | None] = {}
+        super().__init__(popularity, tie_break=tie_break, augmenter=augmenter)
+        self.name = name
+        self._index = index
 
     @property
     def vocabulary_size(self) -> int:
-        return len(self._vectorizer.vocabulary_)
-
-    def user_vector(self, history: tuple[str, ...]) -> FloatArray | None:
-        """Unit-length mean of the History item vectors, or None if it would be zero."""
-        if history not in self._user_cache:
-            rows = [self._row[h] for h in history if h in self._row]
-            vector: FloatArray | None = None
-            if rows:
-                mean = np.asarray(self._matrix[rows].mean(axis=0)).ravel()
-                norm = float(np.linalg.norm(mean))
-                vector = mean / norm if norm > 0 else None
-            self._user_cache[history] = vector
-        return self._user_cache[history]
+        return len(self._index.vectorizer.vocabulary_)
 
     def score(self, request: RankRequest) -> Ranking:
-        user = self.user_vector(request.history)
+        user = self._index.user_vector(self._history(request))
         if user is None:
-            return Ranking(self._popularity.score(request).scores, fallback=True)
+            return self._fallback(request)
+        row = self._index.row
         similarity = np.zeros(len(request.candidate_ids))
-        known = [i for i, n in enumerate(request.candidate_ids) if n in self._row]
+        known = [i for i, n in enumerate(request.candidate_ids) if n in row]
         if known:
-            rows = [self._row[request.candidate_ids[i]] for i in known]
-            similarity[known] = self._matrix[rows] @ user
-        return Ranking(lexicographic_scores(similarity, *self._popularity.keys(request)))
+            rows = [row[request.candidate_ids[i]] for i in known]
+            similarity[known] = self._index.matrix[rows] @ user
+        return self._rank(request, similarity)
 
 
 MODEL_NAMES = (
@@ -234,29 +339,65 @@ MODEL_NAMES = (
     CategoryAffinityRanker.name,
     TfidfRanker.name,
 )
+PERSONALIZED_PARAMS = ("tie_break", "augment_history", "popularity_window_hours")
 
 
 def build_rankers(
-    specs: Sequence[tuple[str, Mapping[str, Any]]],
+    specs: Sequence[tuple[str, str, Mapping[str, Any]]],
     stats: Sequence[Impression],
     news: Mapping[str, NewsItem],
     *,
     seed: int,
 ) -> list[Ranker]:
-    """Fit the named rankers from `stats` (a statistics source) and news metadata only."""
-    popularity = PopularityRanker(stats, news)
+    """Fit rankers from `stats` (a statistics source) and news metadata only.
+
+    Each spec is (reported name, ranker kind, params). Personalized kinds accept
+    `tie_break` ("popularity" or "none"), `augment_history` and
+    `popularity_window_hours`; `tfidf` passes any other params to the vectorizer.
+    """
+    tie_breakers: dict[float | None, PopularityRanker] = {}
+    tfidf_indexes: dict[str, TfidfIndex] = {}
+    augmenter: HistoryAugmenter | None = None
+
+    def tie_breaker(window: float | None) -> PopularityRanker:
+        if window not in tie_breakers:
+            tie_breakers[window] = PopularityRanker(stats, news, window_hours=window)
+        return tie_breakers[window]
+
     rankers: list[Ranker] = []
-    for name, params in specs:
-        if name == RandomRanker.name:
-            rankers.append(RandomRanker(seed))
-        elif name == PopularityRanker.name:
-            rankers.append(popularity)
-        elif name == CategoryAffinityRanker.name:
-            rankers.append(CategoryAffinityRanker(popularity, news))
-        elif name == TfidfRanker.name:
-            corpus = {n for imp in stats for n in imp.history}
-            corpus.update(c.news_id for imp in stats for c in imp.candidates)
-            rankers.append(TfidfRanker(popularity, news, corpus, **params))
+    for name, kind, raw_params in specs:
+        params = dict(raw_params)
+        if kind == RandomRanker.name:
+            ranker: Ranker = RandomRanker(seed, name=name)
+        elif kind == PopularityRanker.name:
+            window = params.pop("window_hours", None)
+            ranker = PopularityRanker(stats, news, window_hours=window, name=name)
+        elif kind in (CategoryAffinityRanker.name, TfidfRanker.name):
+            tie_break = params.pop("tie_break", "popularity")
+            if tie_break not in ("popularity", "none"):
+                raise ValueError(f"{name}: tie_break must be 'popularity' or 'none'")
+            augment = bool(params.pop("augment_history", False))
+            if augment and augmenter is None:
+                augmenter = HistoryAugmenter(stats)
+            options: dict[str, Any] = {
+                "name": name,
+                "tie_break": tie_break == "popularity",
+                "augmenter": augmenter if augment else None,
+            }
+            popularity = tie_breaker(params.pop("popularity_window_hours", None))
+            if kind == CategoryAffinityRanker.name:
+                ranker = CategoryAffinityRanker(popularity, news, **options)
+            else:
+                key = repr(sorted(params.items()))
+                if key not in tfidf_indexes:
+                    corpus = {n for imp in stats for n in imp.history}
+                    corpus.update(c.news_id for imp in stats for c in imp.candidates)
+                    tfidf_indexes[key] = TfidfIndex(news, corpus, **params)
+                params.clear()
+                ranker = TfidfRanker(popularity, tfidf_indexes[key], **options)
         else:
-            raise ValueError(f"unknown model {name!r}; expected one of {MODEL_NAMES}")
+            raise ValueError(f"unknown ranker {kind!r} for {name!r}; expected one of {MODEL_NAMES}")
+        if params:
+            raise ValueError(f"{name}: unknown params {sorted(params)}")
+        rankers.append(ranker)
     return rankers

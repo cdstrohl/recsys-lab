@@ -75,6 +75,11 @@ class ManifestError(RuntimeError):
 class ModelSpec:
     name: str
     params: dict[str, Any] = field(default_factory=dict)
+    ranker: str | None = None  # ranker kind when `name` is a variant, e.g. "tfidf"
+
+    @property
+    def kind(self) -> str:
+        return self.ranker or self.name
 
 
 @dataclass(frozen=True, slots=True)
@@ -118,7 +123,10 @@ def load_config(path: Path) -> EvalConfig:
         raise ValueError(f"holdout_statistics must be 'fit' or 'fit+tune', got {statistics!r}")
     return EvalConfig(
         data_dir=Path(raw["data_dir"]),
-        models=tuple(ModelSpec(m["name"], dict(m.get("params") or {})) for m in raw["models"]),
+        models=tuple(
+            ModelSpec(m["name"], dict(m.get("params") or {}), m.get("ranker"))
+            for m in raw["models"]
+        ),
         data_provenance=raw.get("data_provenance", "real_licensed"),
         seed=int(raw.get("seed", 13)),
         splits=tuple(Split(s) for s in raw.get("splits", ["tune", "holdout"])),
@@ -265,7 +273,7 @@ def _score_all(
     """Fit every model on `stats`, score label-free requests, then compute metrics."""
     requests = [RankRequest.from_impression(imp) for imp in impressions]
     start = time.perf_counter()
-    specs = [(m.name, m.params) for m in config.models]
+    specs = [(m.name, m.kind, m.params) for m in config.models]
     rankers = build_rankers(specs, stats, news, seed=config.seed)
     fit_seconds = time.perf_counter() - start
     runs = []
@@ -388,14 +396,20 @@ def _category_slices(
 
 
 def evaluate_split(
-    split: Split,
+    split: str,
     impressions: Sequence[Impression],
     stats: Sequence[Impression],
     stats_label: str,
     news: Mapping[str, NewsItem],
     config: EvalConfig,
+    *,
+    extra_slices: Mapping[str, tuple[str, list[int]]] | None = None,
 ) -> dict[str, Any]:
-    """Every model on one split: overall metrics, segments by history length, costs."""
+    """Every model on one split: overall metrics, segments by history length, costs.
+
+    `extra_slices` adds named impression subsets (description, row indices) to the
+    configured category slices.
+    """
     runs, fit_seconds = _score_all(impressions, stats, news, config)
     users = sorted({imp.user_id for imp in impressions})
     user_pos = {u: i for i, u in enumerate(users)}
@@ -427,18 +441,18 @@ def evaluate_split(
         label: _segment(runs, rows, impressions, user_index, config)
         for label, rows in buckets.items()
     }
-    slices = {}
+    slice_rows = dict(extra_slices or {})
     if config.slice_category:
-        for name, (description, rows) in _category_slices(
-            impressions, news, config.slice_category
-        ).items():
-            slices[name] = {
-                "description": description,
-                **_segment(runs, rows, impressions, user_index, config),
-            }
+        slice_rows.update(_category_slices(impressions, news, config.slice_category))
+    slices = {}
+    for name, (description, rows) in slice_rows.items():
+        slices[name] = {
+            "description": description,
+            **_segment(runs, rows, impressions, user_index, config),
+        }
 
     return {
-        "split": split.value,
+        "split": split,
         "statistics_source": stats_label,
         "n_statistics_impressions": len(stats),
         "n_impressions": first.n_impressions,
@@ -506,7 +520,7 @@ def run(config: EvalConfig) -> dict[str, Any]:
             stats = data.assignment.statistics_source(include_tune=config.holdout_include_tune)
             label = "fit+tune" if config.holdout_include_tune else "fit"
             targets = data.assignment.holdout(allow_holdout=True)
-        splits[split.value] = evaluate_split(split, targets, stats, label, data.news, config)
+        splits[split.value] = evaluate_split(split.value, targets, stats, label, data.news, config)
 
     # Generated outputs don't make the code dirty.
     status = _git("status", "--porcelain", "--", ".", ":!results", ":!reports")

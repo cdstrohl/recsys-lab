@@ -1,0 +1,54 @@
+# Phase 2 tune-only diagnostics (D-020). Reads MINDsmall_train only; dev is never loaded.
+# Run: uv run python scripts/diagnose.py --config configs/diagnostics.yaml
+data_dir: data/raw
+data_provenance: real_licensed
+seed: 13
+splits: [tune]
+ks: [5, 10]
+history_edges: [0, 1, 6, 21, 51]
+baseline: popularity
+compare_to: [popularity]
+bootstrap_samples: 500
+coverage_k: 10
+models:
+  - name: random
+  - name: popularity
+  - name: category_affinity
+  - name: tfidf
+    params: &tfidf {stop_words: english, sublinear_tf: true, min_df: 2}
+  # Mechanism diagnostics: ties left to the seeded key instead of popularity.
+  - {name: category_affinity_no_pop, ranker: category_affinity, params: {tie_break: none}}
+  - name: tfidf_no_pop
+    ranker: tfidf
+    params: {<<: *tfidf, tie_break: none}
+  # Ablations (Phase 3 candidates only by the D-020 rule).
+  - {name: popularity_24h, ranker: popularity, params: {window_hours: 24}}
+  - {name: popularity_48h, ranker: popularity, params: {window_hours: 48}}
+  - {name: category_affinity_aug, ranker: category_affinity, params: {augment_history: true}}
+  - name: tfidf_aug
+    ranker: tfidf
+    params: {<<: *tfidf, augment_history: true}
+  - {name: category_affinity_pop24h, ranker: category_affinity, params: {popularity_window_hours: 24}}
+  - name: tfidf_pop24h
+    ranker: tfidf
+    params: {<<: *tfidf, popularity_window_hours: 24}
+diagnostics:
+  stability:
+    days: [2019-11-11, 2019-11-12, 2019-11-13, 2019-11-14]
+    models: [random, popularity, category_affinity, tfidf, category_affinity_no_pop, tfidf_no_pop]
+    compare_to: [popularity, category_affinity, category_affinity_no_pop]
+  ablations:
+    models:
+      - popularity
+      - category_affinity
+      - tfidf
+      - popularity_24h
+      - popularity_48h
+      - category_affinity_aug
+      - tfidf_aug
+      - category_affinity_pop24h
+      - tfidf_pop24h
+    compare_to: [popularity, category_affinity, tfidf]
+  outputs:
+    results: results/tune_diagnostics.json
+    report: reports/tune_diagnostics.md

@@ -19,10 +19,12 @@ import pytest
 from recsys.loaders import MindDir
 from recsys.rankers import (
     CategoryAffinityRanker,
+    HistoryAugmenter,
     PopularityRanker,
     RandomRanker,
     Ranker,
     RankRequest,
+    TfidfIndex,
     TfidfRanker,
     build_rankers,
     lexicographic_scores,
@@ -31,11 +33,20 @@ from recsys.schemas import Candidate, Impression, NewsItem
 from recsys.splits import assign_splits
 
 SEED = 13
-ALL_MODELS: list[tuple[str, dict[str, object]]] = [
-    ("random", {}),
-    ("popularity", {}),
-    ("category_affinity", {}),
-    ("tfidf", {"min_df": 1}),
+ALL_MODELS: list[tuple[str, str, dict[str, object]]] = [
+    ("random", "random", {}),
+    ("popularity", "popularity", {}),
+    ("category_affinity", "category_affinity", {}),
+    ("tfidf", "tfidf", {"min_df": 1}),
+    # Diagnostic variants (D-020) must obey the same leakage and order properties.
+    ("popularity_24h", "popularity", {"window_hours": 24}),
+    ("category_affinity_no_pop", "category_affinity", {"tie_break": "none"}),
+    ("category_affinity_aug", "category_affinity", {"augment_history": True}),
+    (
+        "tfidf_aug_24h",
+        "tfidf",
+        {"min_df": 1, "augment_history": True, "popularity_window_hours": 24},
+    ),
 ]
 
 
@@ -90,9 +101,20 @@ def test_lexicographic_scores_order_by_primary_then_secondary() -> None:
     assert lexicographic_scores([0.3, 0.1, 0.2]).tolist() == [2.0, 0.0, 1.0]
 
 
-def test_unknown_model_raises(train: MindDir, news: dict[str, NewsItem]) -> None:
-    with pytest.raises(ValueError, match="unknown model"):
-        build_rankers([("neural", {})], train.impressions, news, seed=SEED)
+def test_unknown_ranker_or_param_raises(train: MindDir, news: dict[str, NewsItem]) -> None:
+    with pytest.raises(ValueError, match="unknown ranker"):
+        build_rankers([("neural", "neural", {})], train.impressions, news, seed=SEED)
+    with pytest.raises(ValueError, match="unknown params"):
+        build_rankers([("p", "popularity", {"windw": 3})], train.impressions, news, seed=SEED)
+    with pytest.raises(ValueError, match="tie_break"):
+        build_rankers(
+            [("c", "category_affinity", {"tie_break": "x"})], train.impressions, news, seed=SEED
+        )
+
+
+def test_variants_carry_their_reported_names(train: MindDir, news: dict[str, NewsItem]) -> None:
+    rankers = build_rankers(ALL_MODELS, train.impressions, news, seed=SEED)
+    assert [r.name for r in rankers] == [name for name, _, _ in ALL_MODELS]
 
 
 # --- Popularity ------------------------------------------------------------------------------
@@ -173,7 +195,7 @@ def toy_news() -> dict[str, NewsItem]:
 
 def test_tfidf_ranks_by_similarity_to_history(toy_news: dict[str, NewsItem]) -> None:
     pop = PopularityRanker((), toy_news)
-    ranker = TfidfRanker(pop, toy_news, ["A", "B", "C"], min_df=1)
+    ranker = TfidfRanker(pop, TfidfIndex(toy_news, ["A", "B", "C"], min_df=1))
     # History A shares "golf" with C and nothing with B.
     ranking = ranker.score(make_request(["B", "C"], history=["A"]))
     assert not ranking.fallback
@@ -181,8 +203,9 @@ def test_tfidf_ranks_by_similarity_to_history(toy_news: dict[str, NewsItem]) -> 
 
 
 def test_tfidf_corpus_excludes_unlisted_items(toy_news: dict[str, NewsItem]) -> None:
-    ranker = TfidfRanker(PopularityRanker((), toy_news), toy_news, ["A", "B", "C"], min_df=1)
-    assert "zebra" not in ranker._vectorizer.vocabulary_
+    index = TfidfIndex(toy_news, ["A", "B", "C"], min_df=1)
+    ranker = TfidfRanker(PopularityRanker((), toy_news), index)
+    assert "zebra" not in index.vectorizer.vocabulary_
     assert ranker.vocabulary_size == 8
 
 
@@ -193,7 +216,7 @@ def test_tfidf_without_usable_history_falls_back_to_popularity(
     toy_news: dict[str, NewsItem], history: tuple[str, ...]
 ) -> None:
     pop = PopularityRanker((), toy_news)
-    ranker = TfidfRanker(pop, toy_news, ["A", "B", "C"], min_df=1)
+    ranker = TfidfRanker(pop, TfidfIndex(toy_news, ["A", "B", "C"], min_df=1))
     request = make_request(["A", "B", "C"], history=history)
     ranking = ranker.score(request)
     assert ranking.fallback
@@ -270,3 +293,63 @@ def test_random_ranker_is_seeded() -> None:
     np.testing.assert_array_equal(RandomRanker(SEED).score(request).scores, first)
     assert not np.array_equal(RandomRanker(SEED + 1).score(request).scores, first)
     assert np.unique(first).size == first.size
+
+
+# --- Diagnostic variants (D-020) -------------------------------------------------------------
+
+
+def test_popularity_window_counts_only_recent_clicks(
+    train: MindDir, news: dict[str, NewsItem]
+) -> None:
+    # N3 clicks: 11/9 8:05 (1), 11/10 23:59:59 (7), 11/11 00:00 (8). At 11/11 8:05 a 24h
+    # window starts 11/10 8:05, so only 7 and 8 count.
+    t = datetime(2019, 11, 11, 8, 5)
+    everything, _ = PopularityRanker(train.impressions, news).keys(make_request(["N3"], t=t))
+    recent, _ = PopularityRanker(train.impressions, news, window_hours=24).keys(
+        make_request(["N3"], t=t)
+    )
+    assert everything.tolist() == [3.0]
+    assert recent.tolist() == [2.0]
+
+
+def test_history_augmenter_appends_only_earlier_own_clicks(train: MindDir) -> None:
+    augmenter = HistoryAugmenter(train.impressions)
+    # U1 clicked N3 (11/9), N7 (11/10) and N13 at 11/11 7:20, the request time itself.
+    request = RankRequest("q", "U1", datetime(2019, 11, 11, 7, 20), ("N1", "N2"), ("N3",))
+    assert augmenter.history(request) == ("N1", "N2", "N3", "N7")
+    # Users without clicks in the statistics source keep their History unchanged.
+    stranger = dataclasses.replace(request, user_id="U-unknown")
+    assert augmenter.history(stranger) == ("N1", "N2")
+
+
+def test_augmentation_rescues_a_zero_history_user_with_earlier_clicks(
+    train: MindDir, news: dict[str, NewsItem]
+) -> None:
+    # U2 has an empty History but clicked N6 (health/medical) and N8 (sports/soccer) on
+    # 11/9 and N3 (news/newsus) at 11/10 23:59:59, all before the 11/11 request.
+    plain, augmented = build_rankers(
+        [
+            ("category_affinity", "category_affinity", {}),
+            ("category_affinity_aug", "category_affinity", {"augment_history": True}),
+        ],
+        train.impressions,
+        news,
+        seed=SEED,
+    )
+    request = RankRequest("q", "U2", datetime(2019, 11, 11), (), ("N3", "N13", "N6"))
+    assert plain.score(request).fallback
+    ranking = augmented.score(request)
+    assert not ranking.fallback
+    # Affinities: N3 2 (news + newsus), N13 1 (sports), N6 2 (health + medical). N3 and N6
+    # tie; popularity splits them (N3: 2 earlier clicks, N6: 1). Order N3, N6, N13.
+    assert ranking.scores.tolist() == [2.0, 0.0, 1.0]
+
+
+def test_tie_break_none_leaves_ties_to_the_metrics(
+    train: MindDir, news: dict[str, NewsItem], holdout: dict[str, RankRequest]
+) -> None:
+    (ranker,) = build_rankers(
+        [("aff", "category_affinity", {"tie_break": "none"})], train.impressions, news, seed=SEED
+    )
+    # 101: affinities (2, 0, 0); N3 and N16 now tie instead of being split by popularity.
+    assert ranker.score(holdout["101"]).scores.tolist() == [1.0, 0.0, 0.0]

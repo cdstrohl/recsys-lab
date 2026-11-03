@@ -155,3 +155,31 @@ Confirmed:
 
 ## D-019 Parity with MIND's official scorer verified (REC-03)
 On 2026-11-03 the owner downloaded `evaluate.py` from [msnews/MIND](https://github.com/msnews/MIND) (`master`) to the gitignored `data/archives/mind_evaluate.py`. Its SHA-256 is `c6195008ed19ba7e68145069cffbdbcc0582ff0e983e2a5966095274043cc2ca`. The four parity tests passed (`MIND_EVAL_PY=data/archives/mind_evaluate.py uv run pytest -k parity`). Our MRR, nDCG@5, nDCG@10 and AUC match the official functions on the tie-free parity cases. Tied cases are excluded by design (D-008), since the official script breaks ties by array position. The script isn't committed, and the parity tests still skip when `MIND_EVAL_PY` is unset.
+
+## D-020 Phase 2 tune-only diagnostics: design and decision rules (fixed before any run)
+**Why.** On tune, `tfidf` beat `category_affinity`; on holdout the order flipped (D-018). The holdout is locked, so the cause is investigated on train data only. `scripts/diagnose.py` loads `MINDsmall_train` and never reads dev.
+
+**Stability (rolling origin).**
+- Score each train day from 11-11 to 11-14 with rankers fitted on every train impression before that day's midnight.
+- 11-14 under this rule is exactly the official tune protocol. The earlier days are `fit` impressions used as diagnostic targets only. No model or parameter is selected on them.
+
+**Hypothesis H1 (tie-break mechanism).**
+- `category_affinity` leaves more ties than `tfidf`, and both break ties by popularity. So `category_affinity` should gain more on days when popularity is informative.
+- Supporting evidence would be:
+  1. With random tie-breaks (`*_no_pop`), `tfidf` minus `category_affinity` is positive and steadier across days than with popularity tie-breaks.
+  2. The gap with popularity tie-breaks shrinks on days where `popularity` minus `random` is larger.
+  3. On tune, `category_affinity`'s deficit to `tfidf` is smaller in impressions where fewer candidates are unclicked in the statistics source.
+- With four days, this is descriptive evidence, not a test.
+
+**Ablations, on the tune protocol only.**
+- Popularity counted over the last 24h or 48h.
+- History augmented with the user's own earlier clicks in the statistics source, strictly time-ordered (`augment_history`, the extension D-014 deferred).
+- Personalized rankers with a 24h popularity tie-break.
+
+**Adoption rule.**
+- A variant becomes a Phase 3 candidate only if both hold:
+  - its paired nDCG@10 delta vs its base model on tune has a 95% CI entirely above 0
+  - its CI for zero-History users isn't entirely below 0
+- Candidates are added as new named models and evaluated in the single Phase 3 holdout run. The v1 baseline config and its holdout numbers stay unchanged.
+
+**Bootstrap.** 500 user-grouped resamples, to keep run time manageable.
