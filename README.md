@@ -4,7 +4,8 @@
 [Microsoft MIND-small](https://msnews.github.io/). Four rankers (random, popularity,
 category affinity, TF-IDF) are evaluated on the provided MIND-small candidate sets.
 Results are in [reports/baseline_results.md](reports/baseline_results.md) and
-`results/`. Figures, a sports slice and stronger models are still to come.
+`results/`, including a figure of nDCG@10 by History length and labeled sports slices.
+Stronger models (collaborative filtering, a hybrid) are still to come.
 
 The question: which ranking approach is worth shipping for a news feed, across
 cold-start and history-rich users, once quality, complexity and inference cost are
@@ -79,6 +80,13 @@ History (cold start) fall back to popularity, and the number of fallbacks is rep
 - user-grouped bootstrap intervals and paired differences vs popularity
 - breakdowns by History length (0, 1-5, 6-20, 21-50, 51+)
 - coverage@10, scoring latency, and tie and fallback counts
+- labeled sports slices (impressions with a sports candidate, users with sports History)
+- deltas against both `popularity` and `category_affinity`
+- the figure `results/figures/ndcg_by_history.png`
+
+The report includes a hand-written interpretation, `reports/interpretation.md`, verbatim.
+By rule it holds no numbers, and a test checks that, so every figure in the report
+comes from the generated JSON.
 
 ## Evaluation design
 
@@ -104,7 +112,10 @@ History (cold start) fall back to popularity, and the number of fallbacks is rep
 **Short lists.** With fewer than k candidates, nDCG@k's ideal DCG uses min(k, n).
 
 The optional parity test against MIND's official `evaluate.py` runs only if you
-supply a local copy (it isn't committed):
+supply a local copy. It isn't committed. The script is in Microsoft's
+[msnews/MIND](https://github.com/msnews/MIND) repository, and the MIND competition page
+on CodaLab offers it too. Keep it outside the repo, or under the gitignored
+`data/archives/`:
 
 ```bash
 MIND_EVAL_PY=/path/to/evaluate.py uv run --with scikit-learn pytest -k parity
@@ -124,8 +135,8 @@ src/recsys/   schemas, loaders, inventory, splits, metrics, rankers, evaluate
 scripts/      inspect_data.py, evaluate.py
 configs/      baseline.yaml (real data), synthetic.yaml (fixtures)
 eval/         manifest.json, locked before the first holdout run
-results/      experiments.json, summary.json (generated)
-reports/      baseline_results.md (generated)
+results/      experiments.json, summary.json, figures/ (generated)
+reports/      baseline_results.md (generated), interpretation.md (hand-written)
 tests/        unit tests + synthetic fixtures
 data/         README only; data/raw/ is gitignored
 ```

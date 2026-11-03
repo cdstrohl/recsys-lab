@@ -144,3 +144,11 @@ Confirmed:
   - `reports/baseline_results.md`: tables and observations computed from the JSON
 - **Privacy.** Outputs hold aggregate numbers only, and a test checks for user IDs and article text.
 - **Deferred.** Segment figures, a sports slice and the interpretive memo (what to ship first) are left for a later ticket.
+
+## D-018 Report additions (REC-07)
+- **Figure.** `results/figures/ndcg_by_history.png` shows nDCG@10 by History bucket, one panel per split on a shared y-axis, with the mean and the user-bootstrap 95% interval. It's drawn with matplotlib's `Figure` API (no pyplot global state), saved with no software metadata, and listed in `summary.json` → `figures`. Colors are fixed per model (validated categorical slots 1-3), `random` is a dashed neutral reference, and every series is labeled directly as well as in the legend.
+- **Sports slices.** Two slices: impressions with at least one `sports` candidate, and impressions whose user History has a `sports` item. They're labeled as slices of general-news data and overlap each other and the buckets. On real holdout, the candidate slice covers nearly every impression, so it adds little.
+- **More than one comparison model.** `compare_to` (`popularity`, `category_affinity`) gives paired deltas against each, so later models are measured against the strongest simple baseline. `summary.json` keeps `popularity` as its `baseline`.
+- **Fallback cells.** A model that fell back to popularity on every impression of a segment is shown as "fallback: = `popularity`" instead of a delta of zero.
+- **Memo.** `reports/interpretation.md` is hand-written and included verbatim in the report. It holds **no numbers** (a test rejects decimals and percentages), so the numbers can't drift from the generated tables. It says which manifest it was written against.
+- **Determinism check.** Re-running the unchanged models at commit `4e3b2f5` reproduced all 1,224 compared values (means, intervals, counts, deltas against popularity, tie, fallback and coverage counts) of the first holdout run (`58889cb`) exactly. Re-running holdout for reporting changes is therefore a reproducibility check, not a second look at the holdout.

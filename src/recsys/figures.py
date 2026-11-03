@@ -83,6 +83,7 @@ def history_figure(experiments: Mapping[str, Any], path: Path) -> Path:
     models = list(next(iter(splits.values()))["models"])
     colors = model_colors(models)
     synthetic = "synthetic" in experiments["data_provenance"]
+    source = "synthetic MIND-format fixtures" if synthetic else "logged MIND-small impressions"
 
     fig = Figure(figsize=(5.2 * len(splits) + 1.2, 4.8), dpi=200, facecolor=SURFACE)
     axes = fig.subplots(1, len(splits), sharey=True, squeeze=False)[0]
@@ -103,7 +104,7 @@ def history_figure(experiments: Mapping[str, Any], path: Path) -> Path:
                 lows.append(entry["mean"] - (entry["ci_low"] or entry["mean"]))
                 highs.append((entry["ci_high"] or entry["mean"]) - entry["mean"])
             reference = model == "random"
-            ax.errorbar(
+            bars = ax.errorbar(
                 xs,
                 ys,
                 yerr=[lows, highs],
@@ -119,6 +120,8 @@ def history_figure(experiments: Mapping[str, Any], path: Path) -> Path:
                 label=model,
                 zorder=2 if reference else 3,
             )
+            for collection in bars.lines[2]:  # interval whiskers stay solid on dashed lines
+                collection.set_linestyle("solid")
             if xs:
                 last_points[model] = (xs[-1], ys[-1])
         ax.set_xticks(
@@ -174,7 +177,7 @@ def history_figure(experiments: Mapping[str, Any], path: Path) -> Path:
     fig.text(
         0.01,
         0.01,
-        "Offline ranking metric on logged MIND-small-format impressions; not engagement or CTR."
+        f"Offline ranking metric on {source}; not engagement or CTR."
         " Zero-history users: personalized models fall back to popularity, so those points"
         " coincide.",
         fontsize=7.5,
