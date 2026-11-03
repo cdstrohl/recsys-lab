@@ -35,10 +35,12 @@ def make_config(tmp_path: Path, **overrides: object) -> EvalConfig:
         data_dir=SYNTHETIC,
         models=MODELS,
         history_edges=(0, 1, 6),
+        compare_to=("popularity", "category_affinity"),
         bootstrap_samples=50,
         results_dir=tmp_path / "results",
         report=tmp_path / "reports" / "baseline_results.md",
         manifest=tmp_path / "eval" / "manifest.json",
+        interpretation=tmp_path / "interpretation.md",
     )
     return dataclasses.replace(config, **overrides)  # type: ignore[arg-type]
 
@@ -120,9 +122,31 @@ def test_holdout_metrics_match_hand_computation(experiments: dict[str, object]) 
     # category affinity ranks it first (1). 102: both put the clicked N13 first (1).
     assert ndcg["popularity"]["mean"] == pytest.approx(0.75)
     assert ndcg["category_affinity"]["mean"] == pytest.approx(1.0)
-    assert ndcg["category_affinity"]["delta_vs_baseline"]["mean"] == pytest.approx(0.25)
+    assert ndcg["category_affinity"]["delta_vs"]["popularity"]["mean"] == pytest.approx(0.25)
+    assert ndcg["popularity"]["delta_vs"]["category_affinity"]["mean"] == pytest.approx(-0.25)
+    assert set(ndcg["tfidf"]["delta_vs"]) == {"popularity", "category_affinity"}
     assert all(entry["n_eligible"] == 2 for entry in ndcg.values())
-    assert "delta_vs_baseline" not in ndcg["popularity"]
+    # A model is never compared with itself.
+    assert "popularity" not in ndcg["popularity"]["delta_vs"]
+    assert "category_affinity" not in ndcg["category_affinity"]["delta_vs"]
+
+
+@pytest.mark.parametrize(
+    ("split", "n_candidates", "n_history"),
+    [
+        # tune: 8-11 all show a sports item (N1 or N13); History has sports for U6 (9), U1 (10).
+        ("tune", 4, 2),
+        # holdout: 101-103 all show N15 or N13; History has sports for U1 (101), U5 (103).
+        ("holdout", 3, 2),
+    ],
+)
+def test_sports_slices_match_hand_counts(
+    experiments: dict[str, object], split: str, n_candidates: int, n_history: int
+) -> None:
+    slices = experiments["splits"][split]["slices"]  # type: ignore[index]
+    assert slices["candidates_include_sports"]["n_impressions"] == n_candidates
+    assert slices["history_includes_sports"]["n_impressions"] == n_history
+    assert "sports" in slices["history_includes_sports"]["description"]
 
 
 def test_segments_partition_impressions_and_flag_cold_start(
@@ -150,8 +174,52 @@ def test_outputs_are_labeled_synthetic_and_hold_no_raw_records(
     assert {m["model"] for m in summary["metrics"]} == {m.name for m in MODELS}
     assert summary["limitations"]
     for path in written:
+        if path.suffix == ".png":
+            continue
         text = path.read_text()
         assert not re.search(r"\bU\d+\b", text), f"user ID in {path}"
         assert "[synthetic]" not in text, f"article text in {path}"
     report = locked.report.read_text()
     assert "not** engagement" in report and "`synthetic`" in report
+
+
+def test_figure_is_written_and_listed(locked: EvalConfig, experiments: dict[str, object]) -> None:
+    write_outputs(experiments, locked)
+    figure = locked.results_dir / "figures" / "ndcg_by_history.png"
+    assert figure.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
+    summary = json.loads((locked.results_dir / "summary.json").read_text())
+    assert summary["figures"] == [figure.as_posix()]
+    assert "](../results/figures/ndcg_by_history.png)" in locked.report.read_text()
+
+
+def test_report_marks_cold_start_fallback_instead_of_a_delta(
+    locked: EvalConfig, experiments: dict[str, object]
+) -> None:
+    write_outputs(experiments, locked)
+    # Holdout bucket "0" holds only impression 102 (U7, empty History).
+    row = next(
+        line
+        for line in locked.report.read_text().splitlines()
+        if line.startswith("| 0 | 1 | 1 |") and "fallback" in line
+    )
+    assert row.count("fallback: = `popularity`") == 2
+    assert "(baseline)" in row
+
+
+def test_interpretation_is_included_verbatim(
+    tmp_path: Path, experiments: dict[str, object]
+) -> None:
+    config = make_config(tmp_path)
+    config.interpretation.write_text("Category affinity is the one to beat.\n")  # type: ignore[union-attr]
+    write_outputs(experiments, config)
+    report = config.report.read_text()
+    assert "## Interpretation" in report
+    assert "Category affinity is the one to beat." in report
+
+
+def test_repo_interpretation_holds_no_numbers() -> None:
+    # Numbers live only in generated tables (D-018); the memo must not drift from them.
+    path = Path(__file__).parents[1] / "reports" / "interpretation.md"
+    if not path.exists():
+        pytest.skip("no interpretation written yet")
+    assert not re.search(r"\.\d|\d\s*%", path.read_text()), "decimal or percent in memo"

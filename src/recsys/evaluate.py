@@ -18,9 +18,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 import time
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -30,6 +31,7 @@ import numpy as np
 import numpy.typing as npt
 import yaml
 
+from recsys.figures import history_figure
 from recsys.inventory import history_bucket, read_provenance, unseen_inventory
 from recsys.loaders import BEHAVIORS_FILE, DEV_DIR, NEWS_FILE, TRAIN_DIR, load_mind_dir
 from recsys.metrics import MetricSummary, evaluate, metric_names, rank_order, tie_break_keys
@@ -86,11 +88,14 @@ class EvalConfig:
     ks: tuple[int, ...] = (5, 10)
     history_edges: tuple[int, ...] = (0, 1, 6)
     baseline: str = "popularity"
+    compare_to: tuple[str, ...] = ("popularity",)  # paired deltas vs each of these
+    slice_category: str | None = "sports"
     bootstrap_samples: int = 1000
     coverage_k: int = 10
     results_dir: Path = Path("results")
     report: Path = Path("reports/baseline_results.md")
     manifest: Path = Path("eval/manifest.json")
+    interpretation: Path | None = Path("reports/interpretation.md")
 
     def __post_init__(self) -> None:
         names = [m.name for m in self.models]
@@ -98,6 +103,8 @@ class EvalConfig:
             raise ValueError(f"duplicate model names in {names}")
         if self.baseline not in names:
             raise ValueError(f"baseline {self.baseline!r} must be one of the models {names}")
+        if missing := [m for m in self.compare_to if m not in names]:
+            raise ValueError(f"compare_to models {missing} must be among the models {names}")
         if Split.FIT in self.splits:
             raise ValueError("fit is the statistics source and can't be an evaluation split")
 
@@ -119,11 +126,14 @@ def load_config(path: Path) -> EvalConfig:
         ks=tuple(raw.get("ks", [5, 10])),
         history_edges=tuple(raw.get("history_edges", [0, 1, 6])),
         baseline=raw.get("baseline", "popularity"),
+        compare_to=tuple(raw.get("compare_to", [raw.get("baseline", "popularity")])),
+        slice_category=raw.get("slice_category", "sports"),
         bootstrap_samples=int(raw.get("bootstrap_samples", 1000)),
         coverage_k=int(raw.get("coverage_k", 10)),
         results_dir=Path(outputs.get("results_dir", "results")),
         report=Path(outputs.get("report", "reports/baseline_results.md")),
         manifest=Path(outputs.get("manifest", "eval/manifest.json")),
+        interpretation=Path(outputs["interpretation"]) if outputs.get("interpretation") else None,
     )
 
 
@@ -296,12 +306,13 @@ def _coverage(
 def _metric_block(
     runs: Sequence[ModelRun], rows: Sequence[int], user_index: IntArray, config: EvalConfig
 ) -> dict[str, dict[str, Any]]:
-    """Mean, bootstrap CI and paired difference vs the baseline, per model and metric.
+    """Mean, bootstrap CI and paired differences vs each `compare_to` model, per metric.
 
     `rows` selects impressions (e.g. one history bucket). Eligibility depends on labels
     only, so for a given metric every model is averaged over the same impressions.
     """
-    base = [r.name for r in runs].index(config.baseline)
+    names = [r.name for r in runs]
+    refs = [(ref, names.index(ref)) for ref in config.compare_to]
     block: dict[str, dict[str, Any]] = {r.name: {} for r in runs}
     for metric in metric_names(config.ks):
         eligible = [i for i in rows if metric in runs[0].summary.per_impression[i].values]
@@ -323,15 +334,57 @@ def _metric_block(
                 "ci_high": high,
                 "n_eligible": len(eligible),
             }
-            if m != base and eligible:
-                d_low, d_high = _interval(boot[:, m] - boot[:, base])
-                entry["delta_vs_baseline"] = {
-                    "mean": float(values[m].mean() - values[base].mean()),
-                    "ci_low": d_low,
-                    "ci_high": d_high,
-                }
+            if eligible:
+                entry["delta_vs"] = {}
+                for ref, r in refs:
+                    if r == m:
+                        continue
+                    d_low, d_high = _interval(boot[:, m] - boot[:, r])
+                    entry["delta_vs"][ref] = {
+                        "mean": float(values[m].mean() - values[r].mean()),
+                        "ci_low": d_low,
+                        "ci_high": d_high,
+                    }
             block[run.name][metric] = entry
     return block
+
+
+def _segment(
+    runs: Sequence[ModelRun],
+    rows: Sequence[int],
+    impressions: Sequence[Impression],
+    user_index: IntArray,
+    config: EvalConfig,
+) -> dict[str, Any]:
+    block = _metric_block(runs, rows, user_index, config)
+    return {
+        "n_impressions": len(rows),
+        "n_users": len({impressions[i].user_id for i in rows}),
+        "models": {
+            run.name: {"metrics": block[run.name], "n_fallback": int(run.fallback[rows].sum())}
+            for run in runs
+        },
+    }
+
+
+def _category_slices(
+    impressions: Sequence[Impression], news: Mapping[str, NewsItem], category: str
+) -> dict[str, tuple[str, list[int]]]:
+    """Impressions with any candidate in `category`, and those whose History has one."""
+
+    def has(ids: Iterable[str]) -> bool:
+        return any(n in news and news[n].category == category for n in ids)
+
+    return {
+        f"candidates_include_{category}": (
+            f"impressions with at least one `{category}` candidate",
+            [i for i, imp in enumerate(impressions) if has(c.news_id for c in imp.candidates)],
+        ),
+        f"history_includes_{category}": (
+            f"impressions whose user History has at least one `{category}` item",
+            [i for i, imp in enumerate(impressions) if has(imp.history)],
+        ),
+    }
 
 
 def evaluate_split(
@@ -370,20 +423,19 @@ def evaluate_split(
     buckets: dict[str, list[int]] = {history_bucket(e, edges): [] for e in edges}
     for i, imp in enumerate(impressions):
         buckets[history_bucket(len(imp.history), edges)].append(i)
-    segments = {}
-    for label, rows in buckets.items():
-        block = _metric_block(runs, rows, user_index, config)
-        segments[label] = {
-            "n_impressions": len(rows),
-            "n_users": len({impressions[i].user_id for i in rows}),
-            "models": {
-                run.name: {
-                    "metrics": block[run.name],
-                    "n_fallback": int(run.fallback[rows].sum()),
-                }
-                for run in runs
-            },
-        }
+    segments = {
+        label: _segment(runs, rows, impressions, user_index, config)
+        for label, rows in buckets.items()
+    }
+    slices = {}
+    if config.slice_category:
+        for name, (description, rows) in _category_slices(
+            impressions, news, config.slice_category
+        ).items():
+            slices[name] = {
+                "description": description,
+                **_segment(runs, rows, impressions, user_index, config),
+            }
 
     return {
         "split": split.value,
@@ -399,6 +451,7 @@ def evaluate_split(
         "fit_seconds_all_models": fit_seconds,
         "models": models,
         "segments_by_history_length": segments,
+        "slices": slices,
     }
 
 
@@ -470,6 +523,8 @@ def run(config: EvalConfig) -> dict[str, Any]:
             "ks": list(config.ks),
             "history_edges": list(config.history_edges),
             "baseline": config.baseline,
+            "compare_to": list(config.compare_to),
+            "slice_category": config.slice_category,
             "bootstrap_samples": config.bootstrap_samples,
             "ci_level": CI_LEVEL,
             "coverage_k": config.coverage_k,
@@ -491,7 +546,9 @@ def metric_label(metric: str) -> str:
     return METRIC_LABELS.get(metric, metric.replace("ndcg", "NDCG"))
 
 
-def build_summary(experiments: Mapping[str, Any]) -> dict[str, Any] | None:
+def build_summary(
+    experiments: Mapping[str, Any], figures: Sequence[str] = ()
+) -> dict[str, Any] | None:
     """The `07` §9 portfolio export: holdout metrics only, or None without a holdout run."""
     holdout = experiments["splits"].get(Split.HOLDOUT.value)
     if holdout is None:
@@ -524,7 +581,7 @@ def build_summary(experiments: Mapping[str, Any]) -> dict[str, Any] | None:
         "reproduce": experiments["reproduce"],
         "data_provenance": experiments["data_provenance"],
         "metrics": metrics,
-        "figures": [],
+        "figures": list(figures),
         "limitations": experiments["limitations"],
     }
 
@@ -539,8 +596,8 @@ def _with_ci(entry: Mapping[str, Any]) -> str:
     return f"{_fmt(entry['mean'])} [{_fmt(entry['ci_low'])}, {_fmt(entry['ci_high'])}]"
 
 
-def _delta(entry: Mapping[str, Any]) -> str:
-    delta = entry.get("delta_vs_baseline")
+def _delta(entry: Mapping[str, Any], ref: str) -> str:
+    delta = entry.get("delta_vs", {}).get(ref)
     if delta is None:
         return "—"
     text = f"{delta['mean']:+.4f}"
@@ -568,10 +625,60 @@ METHODS = (
 )
 
 
-def render_report(experiments: Mapping[str, Any]) -> str:
-    """Human-readable report, rendered only from `experiments` (no hand-entered numbers)."""
+def _segment_tables(
+    segments: Mapping[str, Any], first_column: str, metric: str, baseline: str
+) -> list[str]:
+    """A table of means with intervals, then one of paired deltas vs `baseline`.
+
+    A model that fell back to popularity on every impression of a segment is marked as
+    such instead of showing a delta, since it equals popularity there by construction.
+    """
+    models = list(next(iter(segments.values()))["models"])
+    header = f"| {first_column} | Impressions | Users | " + " | ".join(f"`{m}`" for m in models)
+    separator = "|---|---|---|" + "---|" * len(models)
+    means = [header + " |", separator]
+    deltas = [header + " |", separator]
+    for label, segment in segments.items():
+        row = f"| {segment.get('description', label)} | {segment['n_impressions']:,} |"
+        row += f" {segment['n_users']:,} | "
+        seg_models = segment["models"]
+        means.append(
+            row + " | ".join(_with_ci(seg_models[m]["metrics"][metric]) for m in models) + " |"
+        )
+        cells = []
+        for m in models:
+            n_fallback = seg_models[m]["n_fallback"]
+            if m == baseline:
+                cells.append("(baseline)")
+            elif segment["n_impressions"] and n_fallback == segment["n_impressions"]:
+                cells.append("fallback: = `popularity`")
+            else:
+                cells.append(_delta(seg_models[m]["metrics"][metric], baseline))
+        deltas.append(row + " | ".join(cells) + " |")
+    label = metric_label(metric)
+    return [
+        *means,
+        "",
+        f"Paired Δ {label} vs `{baseline}` [95% CI]:",
+        "",
+        *deltas,
+    ]
+
+
+def render_report(
+    experiments: Mapping[str, Any],
+    *,
+    figures: Sequence[str] = (),
+    interpretation: str | None = None,
+) -> str:
+    """Human-readable report rendered from `experiments`.
+
+    The only hand-written part is `interpretation`, included verbatim; by rule it holds
+    no numbers (D-018), so every number in the report comes from the JSON.
+    """
     config = experiments["config"]
     baseline, ks = config["baseline"], config["ks"]
+    refs = config.get("compare_to", [baseline])
     headline = f"ndcg@{max(ks)}"
     cov_key = f"coverage@{config['coverage_k']}"
     lines = [
@@ -588,6 +695,21 @@ def render_report(experiments: Mapping[str, Any]) -> str:
         f"- Seed {config['seed']}; {config['bootstrap_samples']} user-grouped bootstrap samples;"
         f" {int(config['ci_level'] * 100)}% percentile intervals; fit/tune cutoff"
         f" {config['cutoff']}.",
+    ]
+    if interpretation:
+        lines += [
+            "",
+            "## Interpretation",
+            "",
+            "> Hand-written (`reports/interpretation.md`) and included verbatim. It holds no"
+            " numbers by rule; they're in the tables below.",
+            "",
+            interpretation.strip(),
+        ]
+    if figures:
+        lines += ["", "## Figures", ""]
+        lines += [f"![{metric_label(headline)} by user history length]({f})" for f in figures]
+    lines += [
         "",
         "## Methods",
         "",
@@ -595,10 +717,11 @@ def render_report(experiments: Mapping[str, Any]) -> str:
         "",
         "MRR is MIND-style: the mean of 1/rank over all clicked candidates (D-009). Each"
         " metric is averaged per impression over the impressions eligible for it (D-010)."
-        f" Deltas are paired differences against `{baseline}` on the same impressions, with"
-        " intervals from the same user resamples.",
+        " Deltas are paired differences on the same impressions, with intervals from the"
+        " same user resamples.",
     ]
     for name, split in experiments["splits"].items():
+        others = [m for m in metric_names(ks) if m != headline]
         lines += [
             "",
             f"## Split: `{name}`",
@@ -611,18 +734,21 @@ def render_report(experiments: Mapping[str, Any]) -> str:
             f" {split['share_candidate_occurrences_unseen_in_statistics']:.1%} of candidate"
             " occurrences were never shown there.",
             "",
-            f"| Model | {metric_label(headline)} [95% CI] | Δ vs {baseline} [95% CI] | "
-            + " | ".join(metric_label(m) for m in metric_names(ks) if m != headline)
+            f"| Model | {metric_label(headline)} [95% CI] | "
+            + " | ".join(f"Δ vs `{ref}` [95% CI]" for ref in refs)
+            + " | "
+            + " | ".join(metric_label(m) for m in others)
             + f" | Fallback | Tied | {cov_key.capitalize()} | p50 / p95 ms |",
-            "|---|---|---|" + "---|" * (len(metric_names(ks)) - 1) + "---|---|---|---|",
+            "|---|---|" + "---|" * (len(refs) + len(others)) + "---|---|---|---|",
         ]
         for model, result in split["models"].items():
             metrics = result["metrics"]
-            others = [_fmt(metrics[m]["mean"]) for m in metric_names(ks) if m != headline]
             lat = result["latency_ms"]
             lines.append(
-                f"| `{model}` | {_with_ci(metrics[headline])} | {_delta(metrics[headline])} | "
-                + " | ".join(others)
+                f"| `{model}` | {_with_ci(metrics[headline])} | "
+                + " | ".join(_delta(metrics[headline], ref) for ref in refs)
+                + " | "
+                + " | ".join(_fmt(metrics[m]["mean"]) for m in others)
                 + f" | {result['n_fallback']:,} | {result['n_tied']:,} |"
                 f" {result[cov_key]:.3f} | {lat['p50']:.3f} / {lat['p95']:.3f} |"
             )
@@ -633,26 +759,20 @@ def render_report(experiments: Mapping[str, Any]) -> str:
             "",
             f"### {metric_label(headline)} by user history length",
             "",
-            "| History length | Impressions | Users | "
-            + " | ".join(f"`{m}`" for m in split["models"])
-            + f" | Best Δ vs {baseline} [95% CI] |",
-            "|---|---|---|" + "---|" * len(split["models"]) + "---|",
+            *_segment_tables(
+                split["segments_by_history_length"], "History length", headline, baseline
+            ),
         ]
-        for label, segment in split["segments_by_history_length"].items():
-            seg_models = segment["models"]
-            cells = [_with_ci(seg_models[m]["metrics"][headline]) for m in seg_models]
-            deltas = {
-                m: r["metrics"][headline]["delta_vs_baseline"]
-                for m, r in seg_models.items()
-                if "delta_vs_baseline" in r["metrics"][headline]
-            }
-            best = max(deltas, key=lambda m: deltas[m]["mean"]) if deltas else None
-            best_text = f"`{best}` {_delta(seg_models[best]['metrics'][headline])}" if best else "—"
-            lines.append(
-                f"| {label} | {segment['n_impressions']:,} | {segment['n_users']:,} | "
-                + " | ".join(cells)
-                + f" | {best_text} |"
-            )
+        if split.get("slices"):
+            lines += [
+                "",
+                f"### {metric_label(headline)} on `{config['slice_category']}` slices",
+                "",
+                "Slices of general-news data, not a sports dataset. They overlap each other"
+                " and the history buckets.",
+                "",
+                *_segment_tables(split["slices"], "Slice", headline, baseline),
+            ]
         lines += ["", "### Observations (computed from the tables above)", ""]
         ranked = sorted(
             split["models"].items(),
@@ -664,15 +784,16 @@ def render_report(experiments: Mapping[str, Any]) -> str:
             f"- Highest {metric_label(headline)}: `{top}`"
             f" ({_fmt(top_result['metrics'][headline]['mean'])})."
         )
-        for model, result in ranked:
-            delta = result["metrics"][headline].get("delta_vs_baseline")
-            if delta is None or delta["ci_low"] is None:
-                continue
-            verdict = "excludes 0" if _excludes_zero(delta) else "includes 0"
-            lines.append(
-                f"- `{model}` vs `{baseline}`: Δ {_delta(result['metrics'][headline])};"
-                f" the interval {verdict}."
-            )
+        for ref in refs:
+            for model, result in ranked:
+                delta = result["metrics"][headline].get("delta_vs", {}).get(ref)
+                if delta is None or delta["ci_low"] is None:
+                    continue
+                verdict = "excludes 0" if _excludes_zero(delta) else "includes 0"
+                lines.append(
+                    f"- `{model}` vs `{ref}`: Δ {_delta(result['metrics'][headline], ref)};"
+                    f" the interval {verdict}."
+                )
         cold = split["segments_by_history_length"].get("0")
         if cold and cold["n_impressions"]:
             fell_back = [
@@ -681,23 +802,34 @@ def render_report(experiments: Mapping[str, Any]) -> str:
             if fell_back:
                 lines.append(
                     f"- Zero-history users ({cold['n_impressions']:,} impressions):"
-                    f" {', '.join(f'`{m}`' for m in fell_back)} fall back to `{baseline}` on every"
-                    " impression, so they equal it there by construction."
+                    f" {', '.join(f'`{m}`' for m in fell_back)} fall back to `popularity` on"
+                    " every impression, so they equal it there by construction."
                 )
     lines += ["", "## Limitations", "", *(f"- {item}" for item in experiments["limitations"])]
     return "\n".join(lines) + "\n"
 
 
 def write_outputs(experiments: Mapping[str, Any], config: EvalConfig) -> list[Path]:
+    """Write the figure, experiments.json, summary.json (holdout only) and the report."""
     config.results_dir.mkdir(parents=True, exist_ok=True)
-    written = [config.results_dir / "experiments.json"]
-    written[0].write_text(json.dumps(experiments, indent=2) + "\n", encoding="utf-8")
-    summary = build_summary(experiments)
+    figure = history_figure(experiments, config.results_dir / "figures" / "ndcg_by_history.png")
+    experiments_path = config.results_dir / "experiments.json"
+    experiments_path.write_text(json.dumps(experiments, indent=2) + "\n", encoding="utf-8")
+    written = [figure, experiments_path]
+    summary = build_summary(experiments, figures=[figure.as_posix()])
     if summary is not None:
         path = config.results_dir / "summary.json"
         path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
         written.append(path)
+    interpretation = None
+    if config.interpretation is not None and config.interpretation.exists():
+        interpretation = config.interpretation.read_text(encoding="utf-8")
     config.report.parent.mkdir(parents=True, exist_ok=True)
-    config.report.write_text(render_report(experiments), encoding="utf-8")
+    report = render_report(
+        experiments,
+        figures=[Path(os.path.relpath(figure, config.report.parent)).as_posix()],
+        interpretation=interpretation,
+    )
+    config.report.write_text(report, encoding="utf-8")
     written.append(config.report)
     return written

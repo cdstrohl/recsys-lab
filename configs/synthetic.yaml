@@ -7,7 +7,9 @@ splits: [tune, holdout]
 holdout_statistics: fit+tune     # fit | fit+tune (documented final refit, D-014)
 ks: [5, 10]
 history_edges: [0, 1, 6, 21, 51] # buckets 0, 1-5, 6-20, 21-50, 51+
-baseline: popularity
+baseline: popularity             # portfolio baseline (summary.json)
+compare_to: [popularity, category_affinity]  # paired deltas vs each
+slice_category: sports           # labeled slices of general-news data
 bootstrap_samples: 200
 coverage_k: 10
 models:
@@ -22,4 +24,5 @@ models:
 outputs:
   results_dir: results/synthetic
   report: results/synthetic/baseline_results.md
+  interpretation: results/synthetic/interpretation.md   # hand-written, no numbers (D-018)
   manifest: results/synthetic/manifest.json
