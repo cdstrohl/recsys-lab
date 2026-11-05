@@ -16,6 +16,7 @@ from recsys.evaluate import (
     ManifestError,
     ModelSpec,
     lock_manifest_from_config,
+    render_outputs,
     run,
     user_bootstrap,
     write_outputs,
@@ -215,6 +216,21 @@ def test_interpretation_is_included_verbatim(
     report = config.report.read_text()
     assert "## Interpretation" in report
     assert "Category affinity is the one to beat." in report
+
+
+def test_render_only_rebuilds_the_report_without_touching_results(
+    tmp_path: Path, experiments: dict[str, object]
+) -> None:
+    config = make_config(tmp_path)
+    config.interpretation.write_text("As first run.\n")  # type: ignore[union-attr]
+    write_outputs(experiments, config)
+    results = {p: p.read_bytes() for p in config.results_dir.glob("*.json")}
+    full = config.report.read_text()
+    config.interpretation.write_text("Edited after the run.\n")  # type: ignore[union-attr]
+    written = render_outputs(config)
+    assert config.report in written and all(p.suffix != ".json" for p in written)
+    assert {p: p.read_bytes() for p in config.results_dir.glob("*.json")} == results
+    assert config.report.read_text() == full.replace("As first run.", "Edited after the run.")
 
 
 def test_repo_interpretation_holds_no_numbers() -> None:

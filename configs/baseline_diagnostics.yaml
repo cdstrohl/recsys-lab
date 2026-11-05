@@ -1,0 +1,33 @@
+# Baseline diagnostics (D-023). Reads MINDsmall_train only; dev is never loaded.
+# Holdout enters only through the committed results/experiments.json (descriptive).
+# Run: uv run python scripts/baseline_diagnostics.py --config configs/baseline_diagnostics.yaml
+data_dir: data/raw
+data_provenance: real_licensed
+seed: 13
+splits: [tune]
+ks: [5, 10]
+history_edges: [0, 1, 6, 21, 51]
+baseline: popularity
+compare_to: [category_affinity, random]
+bootstrap_samples: 500
+coverage_k: 10
+models:
+  - name: random
+  - name: popularity
+  - name: category_affinity
+  - name: tfidf
+    params: {stop_words: english, sublinear_tf: true, min_df: 2}
+baseline_diagnostics:
+  days: [2019-11-11, 2019-11-12, 2019-11-13, 2019-11-14]
+  day_windows: [1, null]            # trailing days of statistics; null = all train before
+  tune_windows: [1, 2, 3, 4, null]  # tune targets fixed, corpus varies
+  tune_subsamples: [0.25, 0.5]      # seeded random shares of `fit`: size without recency
+  concentration:
+    min_known_history: 6
+    edges: [0.3333333333, 0.5, 0.6666666667]
+  holdout_reference:
+    experiments: results/experiments.json
+    new_user_share: 0.881           # dev users never in train impressions (D-011, user-level)
+  outputs:
+    results: results/baseline_diagnostics.json
+    report: reports/baseline_diagnostics.md

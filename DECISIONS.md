@@ -214,3 +214,56 @@ Source: `results/tune_diagnostics.json` and `reports/tune_diagnostics.md`, gener
 - **Augmentation helps cold start on tune.** Fallbacks drop from 772 to 160 tune impressions.
 - **Expect a smaller effect on holdout.** 88.1% of dev users never appear in train impressions (D-011), so augmentation can only reach a minority of them.
 - **What adoption means.** Candidates are added to the Phase 3 holdout run as named models. The v1 baseline config and its committed holdout numbers stay unchanged.
+
+## D-022 Phase 3 protocol: hybrid folds and candidate handling (owner decision, 2026-11-05)
+These are decisions for the next model step. Nothing here is implemented yet; this task's brief excludes new models.
+
+**Hybrid weights use four chronological development days, not one.**
+- Development days are the train days 11-11, 11-12, 11-13 and 11-14. For each day D, the base rankers are fitted only on train impressions before D's midnight, and their scores on D's impressions become that day's out-of-time features. D's own labels never reach the rankers that score D.
+- Weights are fitted and selected on development data only. Exact folds:
+
+  | Fold | Base rankers fitted on | Scored (features) | Labels used to fit weights |
+  |---|---|---|---|
+  | 1 | 11-09 to 11-10 | 11-11 | 11-11 |
+  | 2 | 11-09 to 11-11 | 11-12 | 11-12 |
+  | 3 | 11-09 to 11-12 | 11-13 | 11-13 |
+  | 4 | 11-09 to 11-13 | 11-14 (tune) | 11-14 |
+
+- Any weight-selection choice, such as regularization strength, is made by leave-one-day-out over these folds.
+- Results are reported per day and on aggregate, with day-to-day stability, beside each base ranker.
+- At evaluation time the frozen weights are applied to base rankers refitted on all train (fit + tune), following D-013.
+
+**`popularity_48h` stays in the comparison.** It qualified under the D-020 rule, which was fixed before the run. It isn't removed because its observed effect was small. Whether a deployed hybrid uses it is decided from development results only.
+
+**Exploratory vs confirmatory.** MIND-small dev has already been inspected (D-018, D-021). Any further comparison on it is labeled *exploratory holdout* in results and reports. Only a fresh evaluation set, with the comparison and rules fixed before it is opened, counts as *confirmatory* (proposed in `reports/reversal_memo.md`). The v1 manifest, evaluation conventions and leakage safeguards stay unchanged.
+
+## D-023 Baseline diagnostics: design and rules (fixed before the real-data run)
+**Why.** The brief asks for train/tune coverage, tie analysis, History-length and concentration segments, and a split of the tune/holdout reversal into a corpus-size part and an evaluation-population part. `scripts/baseline_diagnostics.py` reads `MINDsmall_train` only.
+
+**Holdout use.** Holdout enters only as already-observed, descriptive reference points: the committed `results/experiments.json` (git `87067dd` results) and D-011's share of dev users never seen in train impressions (88.1%, user-level). Dev isn't loaded, and nothing is re-scored on it. Measures that would require reading dev, such as holdout History concentration, are left unmeasured.
+
+**Design.** Each run scores the four baseline rankers on one train day, with a chosen statistics source.
+- Days × statistics: 11-11 to 11-14, with all earlier train data, and with the trailing day only.
+- Fixed targets: the tune day with trailing windows of 1, 2, 3, 4 days and all, plus seeded 25% and 50% subsamples of `fit`. The subsamples change size without changing recency.
+- Population slices:
+  - returning vs new users (the user has a train impression before the scored day)
+  - top-category share of known History, with buckets [0, 1/3), [1/3, 1/2), [1/2, 2/3), [2/3, 1] for users with 6+ known items, plus separate "none" and "1-5 items" buckets
+- Coverage and score-tie profiles per run.
+- 500 user-grouped bootstrap samples.
+
+**What I'd already seen.** Before fixing these rules I looked at two label-free counts on train:
+- the share of each day's impressions from returning users (37%, 60%, 76%, 84% for 11-11 to 11-14)
+- the spread of top-category shares on tune, which was used to sanity-check bucket sizes
+
+Together with D-021's day-by-day gaps, the first count is what made returning vs new users a candidate explanation. That hypothesis was formed from the data, not before it.
+
+**Verdict rules.**
+- The swing is the holdout gap minus the official tune gap, where the gap is nDCG@10 for `tfidf` minus `category_affinity`. Each explanation gets a point estimate of the change in the tune gap it predicts:
+  - **corpus size:** the largest move of the tune gap toward the holdout gap across the fixed-target runs
+  - **History-length mix:** the tune gap reweighted to holdout's History-length bucket shares
+  - **returning vs new:** the tune gap reweighted to holdout's new-user share
+- The labels are fixed in advance:
+  - "sufficient alone" means the explanation covers ≥ 50% of the swing
+  - "partial" means 25–50%
+  - "minor" means < 25%
+- These are descriptive point estimates, not tests. The new-user reweighting treats a user-level share as an impression-level share, and assumes holdout's new users behave like tune's. Neither assumption can be checked without reading dev.

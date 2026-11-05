@@ -835,6 +835,21 @@ def write_outputs(experiments: Mapping[str, Any], config: EvalConfig) -> list[Pa
         path = config.results_dir / "summary.json"
         path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
         written.append(path)
+    return [*written, _write_report(experiments, config, figure)]
+
+
+def render_outputs(config: EvalConfig) -> list[Path]:
+    """Re-render the figure and report from the existing `experiments.json`.
+
+    Nothing is scored and no data is read, so the JSON results (and the holdout
+    numbers in them) are untouched; use it after editing the interpretation.
+    """
+    experiments = json.loads((config.results_dir / "experiments.json").read_text(encoding="utf-8"))
+    figure = history_figure(experiments, config.results_dir / "figures" / "ndcg_by_history.png")
+    return [figure, _write_report(experiments, config, figure)]
+
+
+def _write_report(experiments: Mapping[str, Any], config: EvalConfig, figure: Path) -> Path:
     interpretation = None
     if config.interpretation is not None and config.interpretation.exists():
         interpretation = config.interpretation.read_text(encoding="utf-8")
@@ -845,5 +860,4 @@ def write_outputs(experiments: Mapping[str, Any], config: EvalConfig) -> list[Pa
         interpretation=interpretation,
     )
     config.report.write_text(report, encoding="utf-8")
-    written.append(config.report)
-    return written
+    return config.report

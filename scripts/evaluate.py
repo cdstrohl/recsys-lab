@@ -4,9 +4,12 @@ Usage:
     uv run python scripts/evaluate.py --config configs/baseline.yaml
     uv run python scripts/evaluate.py --config configs/baseline.yaml --splits tune
     uv run python scripts/evaluate.py --config configs/baseline.yaml --lock-manifest
+    uv run python scripts/evaluate.py --config configs/baseline.yaml --render-only
 
 A holdout run requires the locked `eval/manifest.json` to match the data files.
 Writes results/experiments.json, results/summary.json (holdout only) and the report.
+`--render-only` rebuilds the figure and report from the existing experiments.json
+without reading data or re-scoring.
 """
 
 from __future__ import annotations
@@ -21,6 +24,7 @@ from recsys.evaluate import (
     load_config,
     lock_manifest_from_config,
     metric_label,
+    render_outputs,
     run,
     write_outputs,
 )
@@ -42,9 +46,22 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="write the evaluation manifest (refuses to overwrite) and exit",
     )
+    parser.add_argument(
+        "--render-only",
+        action="store_true",
+        help="re-render the figure and report from the existing experiments.json",
+    )
     args = parser.parse_args(argv)
 
     config = load_config(args.config)
+    if args.render_only:
+        if not (config.results_dir / "experiments.json").exists():
+            print(f"No {config.results_dir / 'experiments.json'}; run without --render-only.",
+                  file=sys.stderr)
+            return 1
+        for path in render_outputs(config):
+            print(f"wrote {path}")
+        return 0
     if args.splits:
         config = dataclasses.replace(config, splits=tuple(Split(s) for s in args.splits))
     missing = [

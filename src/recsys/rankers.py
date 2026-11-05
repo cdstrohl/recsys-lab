@@ -293,6 +293,15 @@ class TfidfIndex:
         return self._user_cache[history]
 
 
+def tfidf_corpus(stats: Iterable[Impression]) -> set[str]:
+    """News IDs the TF-IDF vocabulary is fitted on: History and candidates of `stats`."""
+    corpus: set[str] = set()
+    for imp in stats:
+        corpus.update(imp.history)
+        corpus.update(c.news_id for c in imp.candidates)
+    return corpus
+
+
 class TfidfRanker(_Personalized):
     """Cosine similarity between candidate and user TF-IDF vectors over title + abstract.
 
@@ -390,9 +399,7 @@ def build_rankers(
             else:
                 key = repr(sorted(params.items()))
                 if key not in tfidf_indexes:
-                    corpus = {n for imp in stats for n in imp.history}
-                    corpus.update(c.news_id for imp in stats for c in imp.candidates)
-                    tfidf_indexes[key] = TfidfIndex(news, corpus, **params)
+                    tfidf_indexes[key] = TfidfIndex(news, tfidf_corpus(stats), **params)
                 params.clear()
                 ranker = TfidfRanker(popularity, tfidf_indexes[key], **options)
         else:
