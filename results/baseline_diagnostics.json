@@ -1,0 +1,4414 @@
+{
+  "project": "recsys-lab",
+  "kind": "baseline_diagnostics",
+  "generated_at": "2026-11-05T17:54:29+00:00",
+  "git_sha": "caae6bd",
+  "git_dirty": false,
+  "reproduce": "uv run python scripts/baseline_diagnostics.py --config configs/baseline_diagnostics.yaml",
+  "data_provenance": [
+    "real_licensed"
+  ],
+  "holdout_used": false,
+  "config": {
+    "seed": 13,
+    "bootstrap_samples": 500,
+    "metric": "ndcg@10",
+    "history_edges": [
+      0,
+      1,
+      6,
+      21,
+      51
+    ],
+    "tune_day": "2019-11-14",
+    "days": [
+      "2019-11-11",
+      "2019-11-12",
+      "2019-11-13",
+      "2019-11-14"
+    ],
+    "concentration_min_history": 6,
+    "concentration_edges": [
+      0.3333333333,
+      0.5,
+      0.6666666667
+    ],
+    "models": {
+      "random": {
+        "ranker": "random",
+        "params": {}
+      },
+      "popularity": {
+        "ranker": "popularity",
+        "params": {}
+      },
+      "category_affinity": {
+        "ranker": "category_affinity",
+        "params": {}
+      },
+      "tfidf": {
+        "ranker": "tfidf",
+        "params": {
+          "stop_words": "english",
+          "sublinear_tf": true,
+          "min_df": 2
+        }
+      }
+    }
+  },
+  "holdout_reference": {
+    "source": "results/experiments.json",
+    "git_sha": "1ebfcd0",
+    "statistics_source": "fit+tune",
+    "share_candidates_unseen_as_candidate": 0.21269041422138943,
+    "share_users_new_to_train": 0.881,
+    "n_impressions": 73152,
+    "means": {
+      "random": 0.2859985136615506,
+      "popularity": 0.3136010811666588,
+      "category_affinity": 0.3864817210471241,
+      "tfidf": 0.35975055241706405
+    },
+    "gap": {
+      "mean": -0.02673116863006003,
+      "ci_low": -0.029064113448813003,
+      "ci_high": -0.024457610952075513
+    },
+    "popularity_minus_random": {
+      "mean": 0.0276025675051082,
+      "ci_low": 0.025312529354031423,
+      "ci_high": 0.02977009150176331
+    },
+    "n_users": 50000,
+    "n_statistics_impressions": 156965,
+    "share_impressions_tied": {
+      "random": 0.0,
+      "popularity": 0.8024524278215223,
+      "category_affinity": 0.7531851487314086,
+      "tfidf": 0.33459098862642167
+    },
+    "history_length": {
+      "0": {
+        "n_impressions": 2214,
+        "means": {
+          "random": 0.2910716664117241,
+          "popularity": 0.3162766394290326,
+          "category_affinity": 0.3162766394290326,
+          "tfidf": 0.3162766394290326
+        },
+        "gap": {
+          "mean": 0.0,
+          "ci_low": 0.0,
+          "ci_high": 0.0
+        },
+        "popularity_minus_random": {
+          "mean": 0.025204973017308507,
+          "ci_low": 0.012701384032520675,
+          "ci_high": 0.03691338402914668
+        }
+      },
+      "1-5": {
+        "n_impressions": 10768,
+        "means": {
+          "random": 0.3272483413354707,
+          "popularity": 0.3635745315870481,
+          "category_affinity": 0.4053766950680265,
+          "tfidf": 0.3726393617287576
+        },
+        "gap": {
+          "mean": -0.03273733333926887,
+          "ci_low": -0.03851243487445583,
+          "ci_high": -0.02721183613465447
+        },
+        "popularity_minus_random": {
+          "mean": 0.036326190251577406,
+          "ci_low": 0.030158068398097197,
+          "ci_high": 0.04207479426217055
+        }
+      },
+      "6-20": {
+        "n_impressions": 25435,
+        "means": {
+          "random": 0.2973517322821041,
+          "popularity": 0.3307296399845782,
+          "category_affinity": 0.3969273829329647,
+          "tfidf": 0.3621762351613384
+        },
+        "gap": {
+          "mean": -0.0347511477716263,
+          "ci_low": -0.03890286558858493,
+          "ci_high": -0.03111786744198622
+        },
+        "popularity_minus_random": {
+          "mean": 0.03337790770247412,
+          "ci_low": 0.029284140431466883,
+          "ci_high": 0.03713943608174757
+        }
+      },
+      "21-50": {
+        "n_impressions": 20372,
+        "means": {
+          "random": 0.2698220983693713,
+          "popularity": 0.2970128834280115,
+          "category_affinity": 0.3832590050679444,
+          "tfidf": 0.3597168397089867
+        },
+        "gap": {
+          "mean": -0.0235421653589577,
+          "ci_low": -0.027861025605434745,
+          "ci_high": -0.019349647470005518
+        },
+        "popularity_minus_random": {
+          "mean": 0.0271907850586402,
+          "ci_low": 0.023015115211896114,
+          "ci_high": 0.03134896854139899
+        }
+      },
+      "51+": {
+        "n_impressions": 14363,
+        "means": {
+          "random": 0.2571303602212419,
+          "popularity": 0.2689190558709889,
+          "category_affinity": 0.36921100673304413,
+          "tfidf": 0.3525413412060021
+        },
+        "gap": {
+          "mean": -0.01666966552704202,
+          "ci_low": -0.021318387111347686,
+          "ci_high": -0.011785388310465623
+        },
+        "popularity_minus_random": {
+          "mean": 0.011788695649746994,
+          "ci_low": 0.00710498079183707,
+          "ci_high": 0.016419237060865777
+        }
+      }
+    },
+    "slices": {}
+  },
+  "runs": {
+    "2019-11-11/1d": {
+      "day": "2019-11-11",
+      "statistics": "1d",
+      "window_days": 1,
+      "sample_fraction": null,
+      "fixed_targets": false,
+      "n_impressions": 32799,
+      "means": {
+        "random": 0.32330080784859444,
+        "popularity": 0.3507182269465904,
+        "category_affinity": 0.40895093108344166,
+        "tfidf": 0.40268756622341917
+      },
+      "gap": {
+        "mean": -0.006263364860022491,
+        "ci_low": -0.009339954725767787,
+        "ci_high": -0.002598757370033519
+      },
+      "popularity_minus_random": {
+        "mean": 0.027417419097995943,
+        "ci_low": 0.024076740308675505,
+        "ci_high": 0.031108224779245908
+      },
+      "n_users": 21298,
+      "n_statistics_impressions": 15048,
+      "share_impressions_tied": {
+        "random": 0.0,
+        "popularity": 0.8388060611604012,
+        "category_affinity": 0.810543004359889,
+        "tfidf": 0.3349797249916156
+      },
+      "history_length": {
+        "0": {
+          "n_impressions": 570,
+          "means": {
+            "random": 0.31215472052865106,
+            "popularity": 0.365345780869105,
+            "category_affinity": 0.365345780869105,
+            "tfidf": 0.365345780869105
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.053191060340453955,
+            "ci_low": 0.03133482170787848,
+            "ci_high": 0.0767598897342986
+          }
+        },
+        "1-5": {
+          "n_impressions": 5196,
+          "means": {
+            "random": 0.37507331922965903,
+            "popularity": 0.4046528266131334,
+            "category_affinity": 0.43931529022975885,
+            "tfidf": 0.4266246188599878
+          },
+          "gap": {
+            "mean": -0.012690671369771034,
+            "ci_low": -0.02012507049868858,
+            "ci_high": -0.004286513208996255
+          },
+          "popularity_minus_random": {
+            "mean": 0.029579507383474368,
+            "ci_low": 0.019989095859744146,
+            "ci_high": 0.03834326551514283
+          }
+        },
+        "6-20": {
+          "n_impressions": 12031,
+          "means": {
+            "random": 0.3404335871832691,
+            "popularity": 0.3710179410850718,
+            "category_affinity": 0.42754365358162855,
+            "tfidf": 0.41771616519142535
+          },
+          "gap": {
+            "mean": -0.009827488390203198,
+            "ci_low": -0.01534209729321608,
+            "ci_high": -0.004043359381000869
+          },
+          "popularity_minus_random": {
+            "mean": 0.030584353901802697,
+            "ci_low": 0.02487285713477889,
+            "ci_high": 0.036644577794627806
+          }
+        },
+        "21-50": {
+          "n_impressions": 8864,
+          "means": {
+            "random": 0.3024651126794851,
+            "popularity": 0.3285025266344022,
+            "category_affinity": 0.39613816273061353,
+            "tfidf": 0.39389152777817166
+          },
+          "gap": {
+            "mean": -0.0022466349524418727,
+            "ci_low": -0.008740982215346247,
+            "ci_high": 0.004134318651765962
+          },
+          "popularity_minus_random": {
+            "mean": 0.0260374139549171,
+            "ci_low": 0.020091047025369124,
+            "ci_high": 0.03300516740911878
+          }
+        },
+        "51+": {
+          "n_impressions": 6138,
+          "means": {
+            "random": 0.27701642114932273,
+            "popularity": 0.295995551997743,
+            "category_affinity": 0.36935579582793365,
+            "tfidf": 0.36913704532849245
+          },
+          "gap": {
+            "mean": -0.0002187504994412004,
+            "ci_low": -0.008464267007019997,
+            "ci_high": 0.007289023817983289
+          },
+          "popularity_minus_random": {
+            "mean": 0.01897913084842029,
+            "ci_low": 0.011308026380226705,
+            "ci_high": 0.027263732250963357
+          }
+        }
+      },
+      "slices": {
+        "returning_user": {
+          "description": "user has a train impression before this day",
+          "n_impressions": 12096,
+          "means": {
+            "random": 0.3211423299147906,
+            "popularity": 0.33811155445278424,
+            "category_affinity": 0.4038103467761619,
+            "tfidf": 0.3968556006073118
+          },
+          "gap": {
+            "mean": -0.006954746168850112,
+            "ci_low": -0.01214128501578552,
+            "ci_high": -0.0014546114586467718
+          },
+          "popularity_minus_random": {
+            "mean": 0.016969224537993655,
+            "ci_low": 0.01116886696340099,
+            "ci_high": 0.021696451294553085
+          }
+        },
+        "new_user": {
+          "description": "user has no train impression before this day",
+          "n_impressions": 20703,
+          "means": {
+            "random": 0.32456192696598285,
+            "popularity": 0.35808384113221947,
+            "category_affinity": 0.41195438506503157,
+            "tfidf": 0.40609496882654117
+          },
+          "gap": {
+            "mean": -0.0058594162384904,
+            "ci_low": -0.01007544713277454,
+            "ci_high": -0.001825317639084415
+          },
+          "popularity_minus_random": {
+            "mean": 0.03352191416623662,
+            "ci_low": 0.029366491841007758,
+            "ci_high": 0.03777840371939427
+          }
+        },
+        "history_none": {
+          "description": "no known History item",
+          "n_impressions": 570,
+          "means": {
+            "random": 0.31215472052865106,
+            "popularity": 0.365345780869105,
+            "category_affinity": 0.365345780869105,
+            "tfidf": 0.365345780869105
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.053191060340453955,
+            "ci_low": 0.03133482170787848,
+            "ci_high": 0.0767598897342986
+          }
+        },
+        "history_1_5": {
+          "description": "1 to 5 known History items",
+          "n_impressions": 5196,
+          "means": {
+            "random": 0.37507331922965903,
+            "popularity": 0.4046528266131334,
+            "category_affinity": 0.43931529022975885,
+            "tfidf": 0.4266246188599878
+          },
+          "gap": {
+            "mean": -0.012690671369771034,
+            "ci_low": -0.02012507049868858,
+            "ci_high": -0.004286513208996255
+          },
+          "popularity_minus_random": {
+            "mean": 0.029579507383474368,
+            "ci_low": 0.019989095859744146,
+            "ci_high": 0.03834326551514283
+          }
+        },
+        "top_category_0_33": {
+          "description": "6+ known items; top-category share in [0%, 33%)",
+          "n_impressions": 9869,
+          "means": {
+            "random": 0.3009805417814134,
+            "popularity": 0.32647642838874985,
+            "category_affinity": 0.376061170127596,
+            "tfidf": 0.3742768496930144
+          },
+          "gap": {
+            "mean": -0.0017843204345815988,
+            "ci_low": -0.008500896023451792,
+            "ci_high": 0.00438796906810113
+          },
+          "popularity_minus_random": {
+            "mean": 0.025495886607336427,
+            "ci_low": 0.01858357662308757,
+            "ci_high": 0.0319576709958847
+          }
+        },
+        "top_category_33_50": {
+          "description": "6+ known items; top-category share in [33%, 50%)",
+          "n_impressions": 10804,
+          "means": {
+            "random": 0.32360089301006195,
+            "popularity": 0.3495061906445833,
+            "category_affinity": 0.41366602916345135,
+            "tfidf": 0.408337763103522
+          },
+          "gap": {
+            "mean": -0.005328266059929365,
+            "ci_low": -0.011061554767618737,
+            "ci_high": 0.0006347396587745165
+          },
+          "popularity_minus_random": {
+            "mean": 0.025905297634521374,
+            "ci_low": 0.020463246888709333,
+            "ci_high": 0.031631031066455755
+          }
+        },
+        "top_category_50_67": {
+          "description": "6+ known items; top-category share in [50%, 67%)",
+          "n_impressions": 4887,
+          "means": {
+            "random": 0.3203751366030839,
+            "popularity": 0.349699969367433,
+            "category_affinity": 0.42937641549905464,
+            "tfidf": 0.4186160208268705
+          },
+          "gap": {
+            "mean": -0.010760394672184148,
+            "ci_low": -0.018628722218460212,
+            "ci_high": -0.0028398500639094854
+          },
+          "popularity_minus_random": {
+            "mean": 0.02932483276434905,
+            "ci_low": 0.02074141555008634,
+            "ci_high": 0.03858829674713535
+          }
+        },
+        "top_category_67_100": {
+          "description": "6+ known items; top-category share in [67%, 100%]",
+          "n_impressions": 1473,
+          "means": {
+            "random": 0.30203647773704057,
+            "popularity": 0.3294904532604829,
+            "category_affinity": 0.43672385326648666,
+            "tfidf": 0.42876100060985173
+          },
+          "gap": {
+            "mean": -0.007962852656634933,
+            "ci_low": -0.02437084442050272,
+            "ci_high": 0.005865533332093547
+          },
+          "popularity_minus_random": {
+            "mean": 0.02745397552344231,
+            "ci_low": 0.010161888602716202,
+            "ci_high": 0.04378380791721339
+          }
+        }
+      },
+      "coverage": {
+        "n_impressions": 32799,
+        "n_users": 21298,
+        "n_statistics_impressions": 15048,
+        "candidates_per_impression": 35.559254855330956,
+        "share_impressions_user_in_statistics": 0.2657398091405226,
+        "share_users_in_statistics": 0.24025730115503804,
+        "share_impressions_no_known_history": 0.017378578615201683,
+        "share_history_items_unknown": 0.0,
+        "share_candidates_unseen_as_candidate": 0.24082660840875653,
+        "share_candidates_unclicked_before": 0.6041954612332249,
+        "share_candidates_outside_tfidf_corpus": 0.22464048947619325,
+        "share_candidates_zero_tfidf_vector": 0.0,
+        "tfidf_vocabulary_size": 22930
+      },
+      "ties": {
+        "popularity": {
+          "n_impressions": 32799,
+          "share_pairs_tied": 0.09232955558988377,
+          "share_clicks_tied_with_a_non_click": 0.513696778085155
+        },
+        "category_affinity": {
+          "n_impressions": 32229,
+          "share_pairs_tied": 0.2372764402979879,
+          "share_clicks_tied_with_a_non_click": 0.8017511208865579
+        },
+        "tfidf": {
+          "n_impressions": 32229,
+          "share_pairs_tied": 0.09778535618617284,
+          "share_clicks_tied_with_a_non_click": 0.1468361390745284
+        }
+      }
+    },
+    "2019-11-11/all": {
+      "day": "2019-11-11",
+      "statistics": "all",
+      "window_days": null,
+      "sample_fraction": null,
+      "fixed_targets": false,
+      "n_impressions": 32799,
+      "means": {
+        "random": 0.32330080784859444,
+        "popularity": 0.34875409722135986,
+        "category_affinity": 0.40865187206289066,
+        "tfidf": 0.40268548041225793
+      },
+      "gap": {
+        "mean": -0.00596639165063273,
+        "ci_low": -0.009007580500462143,
+        "ci_high": -0.002344557277355219
+      },
+      "popularity_minus_random": {
+        "mean": 0.02545328937276542,
+        "ci_low": 0.02197489135715569,
+        "ci_high": 0.029219095690511683
+      },
+      "n_users": 21298,
+      "n_statistics_impressions": 28618,
+      "share_impressions_tied": {
+        "random": 0.0,
+        "popularity": 0.8383487301442117,
+        "category_affinity": 0.8097502972651606,
+        "tfidf": 0.3315954754718132
+      },
+      "history_length": {
+        "0": {
+          "n_impressions": 570,
+          "means": {
+            "random": 0.31215472052865106,
+            "popularity": 0.3621110046109709,
+            "category_affinity": 0.3621110046109709,
+            "tfidf": 0.3621110046109709
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.049956284082319835,
+            "ci_low": 0.02753451877622968,
+            "ci_high": 0.07380238657597633
+          }
+        },
+        "1-5": {
+          "n_impressions": 5196,
+          "means": {
+            "random": 0.37507331922965903,
+            "popularity": 0.404854641138167,
+            "category_affinity": 0.44000872578249617,
+            "tfidf": 0.42712396935603625
+          },
+          "gap": {
+            "mean": -0.01288475642645992,
+            "ci_low": -0.020598434597542955,
+            "ci_high": -0.00452158577873683
+          },
+          "popularity_minus_random": {
+            "mean": 0.029781321908507963,
+            "ci_low": 0.020333608241508826,
+            "ci_high": 0.038678358433162766
+          }
+        },
+        "6-20": {
+          "n_impressions": 12031,
+          "means": {
+            "random": 0.3404335871832691,
+            "popularity": 0.3707270804196958,
+            "category_affinity": 0.42707283289129694,
+            "tfidf": 0.41766231266509857
+          },
+          "gap": {
+            "mean": -0.009410520226198371,
+            "ci_low": -0.014575894883937845,
+            "ci_high": -0.0036353083686015203
+          },
+          "popularity_minus_random": {
+            "mean": 0.030293493236426716,
+            "ci_low": 0.024613990142791753,
+            "ci_high": 0.03618745009459031
+          }
+        },
+        "21-50": {
+          "n_impressions": 8864,
+          "means": {
+            "random": 0.3024651126794851,
+            "popularity": 0.32570887625992545,
+            "category_affinity": 0.39582876488153923,
+            "tfidf": 0.39419132861565476
+          },
+          "gap": {
+            "mean": -0.0016374362658844732,
+            "ci_low": -0.008466898983035891,
+            "ci_high": 0.005091872480829678
+          },
+          "popularity_minus_random": {
+            "mean": 0.023243763580440335,
+            "ci_low": 0.016871235713921785,
+            "ci_high": 0.03010888862053768
+          }
+        },
+        "51+": {
+          "n_impressions": 6138,
+          "means": {
+            "random": 0.27701642114932273,
+            "popularity": 0.2902340604568057,
+            "category_affinity": 0.36884078129219455,
+            "tfidf": 0.368676186724742
+          },
+          "gap": {
+            "mean": -0.0001645945674525473,
+            "ci_low": -0.008121906148026204,
+            "ci_high": 0.00723293223072108
+          },
+          "popularity_minus_random": {
+            "mean": 0.013217639307482987,
+            "ci_low": 0.0058286865461575936,
+            "ci_high": 0.021662374383018438
+          }
+        }
+      },
+      "slices": {
+        "returning_user": {
+          "description": "user has a train impression before this day",
+          "n_impressions": 12096,
+          "means": {
+            "random": 0.3211423299147906,
+            "popularity": 0.33408747893632285,
+            "category_affinity": 0.4035120334274592,
+            "tfidf": 0.3972356578911332
+          },
+          "gap": {
+            "mean": -0.00627637553632604,
+            "ci_low": -0.01133255082347187,
+            "ci_high": -0.0008513227961156238
+          },
+          "popularity_minus_random": {
+            "mean": 0.012945149021532265,
+            "ci_low": 0.007425290622708407,
+            "ci_high": 0.017692871269616203
+          }
+        },
+        "new_user": {
+          "description": "user has no train impression before this day",
+          "n_impressions": 20703,
+          "means": {
+            "random": 0.32456192696598285,
+            "popularity": 0.357323261824355,
+            "category_affinity": 0.41165489037589736,
+            "tfidf": 0.40586961088685225
+          },
+          "gap": {
+            "mean": -0.005785279489045114,
+            "ci_low": -0.009962535332465848,
+            "ci_high": -0.0017177041771642642
+          },
+          "popularity_minus_random": {
+            "mean": 0.032761334858372126,
+            "ci_low": 0.028582594252451743,
+            "ci_high": 0.03715481571362692
+          }
+        },
+        "history_none": {
+          "description": "no known History item",
+          "n_impressions": 570,
+          "means": {
+            "random": 0.31215472052865106,
+            "popularity": 0.3621110046109709,
+            "category_affinity": 0.3621110046109709,
+            "tfidf": 0.3621110046109709
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.049956284082319835,
+            "ci_low": 0.02753451877622968,
+            "ci_high": 0.07380238657597633
+          }
+        },
+        "history_1_5": {
+          "description": "1 to 5 known History items",
+          "n_impressions": 5196,
+          "means": {
+            "random": 0.37507331922965903,
+            "popularity": 0.404854641138167,
+            "category_affinity": 0.44000872578249617,
+            "tfidf": 0.42712396935603625
+          },
+          "gap": {
+            "mean": -0.01288475642645992,
+            "ci_low": -0.020598434597542955,
+            "ci_high": -0.00452158577873683
+          },
+          "popularity_minus_random": {
+            "mean": 0.029781321908507963,
+            "ci_low": 0.020333608241508826,
+            "ci_high": 0.038678358433162766
+          }
+        },
+        "top_category_0_33": {
+          "description": "6+ known items; top-category share in [0%, 33%)",
+          "n_impressions": 9869,
+          "means": {
+            "random": 0.3009805417814134,
+            "popularity": 0.3254959836865968,
+            "category_affinity": 0.3753008234787883,
+            "tfidf": 0.3743043775273055
+          },
+          "gap": {
+            "mean": -0.000996445951482794,
+            "ci_low": -0.007730159497324423,
+            "ci_high": 0.005403539008087644
+          },
+          "popularity_minus_random": {
+            "mean": 0.0245154419051834,
+            "ci_low": 0.017596679624270258,
+            "ci_high": 0.030232680889958587
+          }
+        },
+        "top_category_33_50": {
+          "description": "6+ known items; top-category share in [33%, 50%)",
+          "n_impressions": 10804,
+          "means": {
+            "random": 0.32360089301006195,
+            "popularity": 0.34604182341029666,
+            "category_affinity": 0.4133993805528712,
+            "tfidf": 0.40796159503353735
+          },
+          "gap": {
+            "mean": -0.0054377855193338265,
+            "ci_low": -0.01105881274227053,
+            "ci_high": 0.0005803259773976707
+          },
+          "popularity_minus_random": {
+            "mean": 0.022440930400234704,
+            "ci_low": 0.017175156111163766,
+            "ci_high": 0.028094096097163963
+          }
+        },
+        "top_category_50_67": {
+          "description": "6+ known items; top-category share in [50%, 67%)",
+          "n_impressions": 4887,
+          "means": {
+            "random": 0.3203751366030839,
+            "popularity": 0.34586572993588477,
+            "category_affinity": 0.42921602569436557,
+            "tfidf": 0.4195177806478569
+          },
+          "gap": {
+            "mean": -0.00969824504650868,
+            "ci_low": -0.017675290508384515,
+            "ci_high": -0.0013910379803808409
+          },
+          "popularity_minus_random": {
+            "mean": 0.02549059333280085,
+            "ci_low": 0.01706575980374786,
+            "ci_high": 0.03405447258045773
+          }
+        },
+        "top_category_67_100": {
+          "description": "6+ known items; top-category share in [67%, 100%]",
+          "n_impressions": 1473,
+          "means": {
+            "random": 0.30203647773704057,
+            "popularity": 0.3309953166711985,
+            "category_affinity": 0.4364526055824184,
+            "tfidf": 0.42778770268434335
+          },
+          "gap": {
+            "mean": -0.008664902898075033,
+            "ci_low": -0.024565246988594282,
+            "ci_high": 0.005029395820783768
+          },
+          "popularity_minus_random": {
+            "mean": 0.02895883893415796,
+            "ci_low": 0.011467497858411661,
+            "ci_high": 0.04571902149301929
+          }
+        }
+      },
+      "coverage": {
+        "n_impressions": 32799,
+        "n_users": 21298,
+        "n_statistics_impressions": 28618,
+        "candidates_per_impression": 35.559254855330956,
+        "share_impressions_user_in_statistics": 0.3687917314552273,
+        "share_users_in_statistics": 0.3432716687012865,
+        "share_impressions_no_known_history": 0.017378578615201683,
+        "share_history_items_unknown": 0.0,
+        "share_candidates_unseen_as_candidate": 0.23898232713828593,
+        "share_candidates_unclicked_before": 0.5897112941007007,
+        "share_candidates_outside_tfidf_corpus": 0.2226684546449137,
+        "share_candidates_zero_tfidf_vector": 0.0,
+        "tfidf_vocabulary_size": 24975
+      },
+      "ties": {
+        "popularity": {
+          "n_impressions": 32799,
+          "share_pairs_tied": 0.09000899518846649,
+          "share_clicks_tied_with_a_non_click": 0.4915656134950184
+        },
+        "category_affinity": {
+          "n_impressions": 32229,
+          "share_pairs_tied": 0.2372764402979879,
+          "share_clicks_tied_with_a_non_click": 0.8017511208865579
+        },
+        "tfidf": {
+          "n_impressions": 32229,
+          "share_pairs_tied": 0.09778484755652872,
+          "share_clicks_tied_with_a_non_click": 0.1468361390745284
+        }
+      }
+    },
+    "2019-11-12/1d": {
+      "day": "2019-11-12",
+      "statistics": "1d",
+      "window_days": 1,
+      "sample_fraction": null,
+      "fixed_targets": false,
+      "n_impressions": 33654,
+      "means": {
+        "random": 0.30099690433038784,
+        "popularity": 0.32730889951118913,
+        "category_affinity": 0.3803435375105388,
+        "tfidf": 0.3680172681315084
+      },
+      "gap": {
+        "mean": -0.012326269379030363,
+        "ci_low": -0.015199582815565002,
+        "ci_high": -0.0092798295636565
+      },
+      "popularity_minus_random": {
+        "mean": 0.026311995180801295,
+        "ci_low": 0.022965341421887144,
+        "ci_high": 0.029959290329007852
+      },
+      "n_users": 22011,
+      "n_statistics_impressions": 32799,
+      "share_impressions_tied": {
+        "random": 0.0,
+        "popularity": 0.8658108991501753,
+        "category_affinity": 0.8249242289178107,
+        "tfidf": 0.33122362869198313
+      },
+      "history_length": {
+        "0": {
+          "n_impressions": 776,
+          "means": {
+            "random": 0.307012370082405,
+            "popularity": 0.31450500459307973,
+            "category_affinity": 0.31450500459307973,
+            "tfidf": 0.31450500459307973
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.007492634510674723,
+            "ci_low": -0.01409237676310403,
+            "ci_high": 0.029816314956690133
+          }
+        },
+        "1-5": {
+          "n_impressions": 4902,
+          "means": {
+            "random": 0.34379041756734796,
+            "popularity": 0.3757708164545098,
+            "category_affinity": 0.40128472281942557,
+            "tfidf": 0.38386048853260135
+          },
+          "gap": {
+            "mean": -0.017424234286824214,
+            "ci_low": -0.025132265188211992,
+            "ci_high": -0.009500633306808885
+          },
+          "popularity_minus_random": {
+            "mean": 0.031980398887161865,
+            "ci_low": 0.022994049135114818,
+            "ci_high": 0.040729475043774485
+          }
+        },
+        "6-20": {
+          "n_impressions": 11824,
+          "means": {
+            "random": 0.3129873652700281,
+            "popularity": 0.34606168716512586,
+            "category_affinity": 0.3928931308465887,
+            "tfidf": 0.37345199628985587
+          },
+          "gap": {
+            "mean": -0.019441134556732853,
+            "ci_low": -0.024637350659608252,
+            "ci_high": -0.014278867360920693
+          },
+          "popularity_minus_random": {
+            "mean": 0.03307432189509779,
+            "ci_low": 0.027675950838005545,
+            "ci_high": 0.039523319075994726
+          }
+        },
+        "21-50": {
+          "n_impressions": 9387,
+          "means": {
+            "random": 0.28431451216161996,
+            "popularity": 0.3070070201694973,
+            "category_affinity": 0.374136239001221,
+            "tfidf": 0.3661135346369709
+          },
+          "gap": {
+            "mean": -0.008022704364250122,
+            "ci_low": -0.014373844315185616,
+            "ci_high": -0.0009716926795874161
+          },
+          "popularity_minus_random": {
+            "mean": 0.022692508007877366,
+            "ci_low": 0.015753821548921194,
+            "ci_high": 0.028749017680461144
+          }
+        },
+        "51+": {
+          "n_impressions": 6765,
+          "means": {
+            "random": 0.2714892327600661,
+            "popularity": 0.2890555788549596,
+            "category_affinity": 0.3594002308824972,
+            "tfidf": 0.3558180324579809
+          },
+          "gap": {
+            "mean": -0.003582198424516292,
+            "ci_low": -0.010632737530902481,
+            "ci_high": 0.0032389098206026777
+          },
+          "popularity_minus_random": {
+            "mean": 0.017566346094893492,
+            "ci_low": 0.010527984312601133,
+            "ci_high": 0.025298923764602674
+          }
+        }
+      },
+      "slices": {
+        "returning_user": {
+          "description": "user has a train impression before this day",
+          "n_impressions": 20330,
+          "means": {
+            "random": 0.3041349137106312,
+            "popularity": 0.32396573496656944,
+            "category_affinity": 0.3831444161289053,
+            "tfidf": 0.3715777756563519
+          },
+          "gap": {
+            "mean": -0.011566640472553402,
+            "ci_low": -0.015458157423809276,
+            "ci_high": -0.0075150471960402955
+          },
+          "popularity_minus_random": {
+            "mean": 0.019830821255938214,
+            "ci_low": 0.01580407072013367,
+            "ci_high": 0.02422637225462417
+          }
+        },
+        "new_user": {
+          "description": "user has no train impression before this day",
+          "n_impressions": 13324,
+          "means": {
+            "random": 0.29620887290586456,
+            "popularity": 0.33240996039321546,
+            "category_affinity": 0.37606990629533404,
+            "tfidf": 0.36258458140229294
+          },
+          "gap": {
+            "mean": -0.013485324893041106,
+            "ci_low": -0.01899914559791483,
+            "ci_high": -0.00848578405189292
+          },
+          "popularity_minus_random": {
+            "mean": 0.0362010874873509,
+            "ci_low": 0.030734216185673593,
+            "ci_high": 0.04145954867273927
+          }
+        },
+        "history_none": {
+          "description": "no known History item",
+          "n_impressions": 776,
+          "means": {
+            "random": 0.307012370082405,
+            "popularity": 0.31450500459307973,
+            "category_affinity": 0.31450500459307973,
+            "tfidf": 0.31450500459307973
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.007492634510674723,
+            "ci_low": -0.01409237676310403,
+            "ci_high": 0.029816314956690133
+          }
+        },
+        "history_1_5": {
+          "description": "1 to 5 known History items",
+          "n_impressions": 4902,
+          "means": {
+            "random": 0.34379041756734796,
+            "popularity": 0.3757708164545098,
+            "category_affinity": 0.40128472281942557,
+            "tfidf": 0.38386048853260135
+          },
+          "gap": {
+            "mean": -0.017424234286824214,
+            "ci_low": -0.025132265188211992,
+            "ci_high": -0.009500633306808885
+          },
+          "popularity_minus_random": {
+            "mean": 0.031980398887161865,
+            "ci_low": 0.022994049135114818,
+            "ci_high": 0.040729475043774485
+          }
+        },
+        "top_category_0_33": {
+          "description": "6+ known items; top-category share in [0%, 33%)",
+          "n_impressions": 10728,
+          "means": {
+            "random": 0.28175194010628624,
+            "popularity": 0.30792952331866363,
+            "category_affinity": 0.34499614745464163,
+            "tfidf": 0.3411345198513953
+          },
+          "gap": {
+            "mean": -0.0038616276032463204,
+            "ci_low": -0.009847315926076815,
+            "ci_high": 0.001963960091500689
+          },
+          "popularity_minus_random": {
+            "mean": 0.026177583212377398,
+            "ci_low": 0.019932118075791375,
+            "ci_high": 0.03290850872643813
+          }
+        },
+        "top_category_33_50": {
+          "description": "6+ known items; top-category share in [33%, 50%)",
+          "n_impressions": 10888,
+          "means": {
+            "random": 0.297165301288139,
+            "popularity": 0.3276108453309613,
+            "category_affinity": 0.38987642818145835,
+            "tfidf": 0.37598939011737503
+          },
+          "gap": {
+            "mean": -0.013887038064083312,
+            "ci_low": -0.02001886769050936,
+            "ci_high": -0.008322163587719039
+          },
+          "popularity_minus_random": {
+            "mean": 0.030445544042822292,
+            "ci_low": 0.02456039493062647,
+            "ci_high": 0.03616791939398316
+          }
+        },
+        "top_category_50_67": {
+          "description": "6+ known items; top-category share in [50%, 67%)",
+          "n_impressions": 4962,
+          "means": {
+            "random": 0.31184117324728233,
+            "popularity": 0.3276753542177285,
+            "category_affinity": 0.41651301913498245,
+            "tfidf": 0.39007757575493834
+          },
+          "gap": {
+            "mean": -0.02643544338004411,
+            "ci_low": -0.03594304605417348,
+            "ci_high": -0.018933960111027045
+          },
+          "popularity_minus_random": {
+            "mean": 0.015834180970446143,
+            "ci_low": 0.007244559128380568,
+            "ci_high": 0.02412122698424825
+          }
+        },
+        "top_category_67_100": {
+          "description": "6+ known items; top-category share in [67%, 100%]",
+          "n_impressions": 1398,
+          "means": {
+            "random": 0.2866388245331005,
+            "popularity": 0.30954889883463765,
+            "category_affinity": 0.4120865491228343,
+            "tfidf": 0.4080719627231689
+          },
+          "gap": {
+            "mean": -0.0040145863996653985,
+            "ci_low": -0.01784696840358733,
+            "ci_high": 0.008671751928632232
+          },
+          "popularity_minus_random": {
+            "mean": 0.02291007430153713,
+            "ci_low": 0.006081518908073524,
+            "ci_high": 0.04203494421279673
+          }
+        }
+      },
+      "coverage": {
+        "n_impressions": 33654,
+        "n_users": 22011,
+        "n_statistics_impressions": 32799,
+        "candidates_per_impression": 35.01705592203007,
+        "share_impressions_user_in_statistics": 0.49254174838057885,
+        "share_users_in_statistics": 0.4397801099450275,
+        "share_impressions_no_known_history": 0.02305818030546146,
+        "share_history_items_unknown": 0.0,
+        "share_candidates_unseen_as_candidate": 0.272346885437315,
+        "share_candidates_unclicked_before": 0.599104427458115,
+        "share_candidates_outside_tfidf_corpus": 0.26863866863985664,
+        "share_candidates_zero_tfidf_vector": 0.0,
+        "tfidf_vocabulary_size": 25704
+      },
+      "ties": {
+        "popularity": {
+          "n_impressions": 33654,
+          "share_pairs_tied": 0.08242157689082051,
+          "share_clicks_tied_with_a_non_click": 0.5101110076075144
+        },
+        "category_affinity": {
+          "n_impressions": 32878,
+          "share_pairs_tied": 0.23732460355390558,
+          "share_clicks_tied_with_a_non_click": 0.8110517641919663
+        },
+        "tfidf": {
+          "n_impressions": 32878,
+          "share_pairs_tied": 0.10411446735452903,
+          "share_clicks_tied_with_a_non_click": 0.173698945654548
+        }
+      }
+    },
+    "2019-11-12/all": {
+      "day": "2019-11-12",
+      "statistics": "all",
+      "window_days": null,
+      "sample_fraction": null,
+      "fixed_targets": false,
+      "n_impressions": 33654,
+      "means": {
+        "random": 0.30099690433038784,
+        "popularity": 0.3275024213843354,
+        "category_affinity": 0.38057922995091736,
+        "tfidf": 0.3680669204321372
+      },
+      "gap": {
+        "mean": -0.012512309518780185,
+        "ci_low": -0.015446835311663739,
+        "ci_high": -0.009353305001361016
+      },
+      "popularity_minus_random": {
+        "mean": 0.026505517053947547,
+        "ci_low": 0.022896563362843243,
+        "ci_high": 0.030375052100311876
+      },
+      "n_users": 22011,
+      "n_statistics_impressions": 61417,
+      "share_impressions_tied": {
+        "random": 0.0,
+        "popularity": 0.8656623284007845,
+        "category_affinity": 0.8246568015689071,
+        "tfidf": 0.32733107505794257
+      },
+      "history_length": {
+        "0": {
+          "n_impressions": 776,
+          "means": {
+            "random": 0.307012370082405,
+            "popularity": 0.31409537170618834,
+            "category_affinity": 0.31409537170618834,
+            "tfidf": 0.31409537170618834
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.007083001623783336,
+            "ci_low": -0.014494592482003115,
+            "ci_high": 0.029319563500450344
+          }
+        },
+        "1-5": {
+          "n_impressions": 4902,
+          "means": {
+            "random": 0.34379041756734796,
+            "popularity": 0.37913842178463236,
+            "category_affinity": 0.4031423070431578,
+            "tfidf": 0.3839474324865954
+          },
+          "gap": {
+            "mean": -0.01919487455656238,
+            "ci_low": -0.026887764073580022,
+            "ci_high": -0.011933981132568631
+          },
+          "popularity_minus_random": {
+            "mean": 0.0353480042172844,
+            "ci_low": 0.02642224826389222,
+            "ci_high": 0.043967674834851055
+          }
+        },
+        "6-20": {
+          "n_impressions": 11824,
+          "means": {
+            "random": 0.3129873652700281,
+            "popularity": 0.3470047067005532,
+            "category_affinity": 0.3928398958131935,
+            "tfidf": 0.37343424683870846
+          },
+          "gap": {
+            "mean": -0.019405648974485046,
+            "ci_low": -0.024729393292316795,
+            "ci_high": -0.014062890274823065
+          },
+          "popularity_minus_random": {
+            "mean": 0.03401734143052515,
+            "ci_low": 0.02863018029584416,
+            "ci_high": 0.040718795210301285
+          }
+        },
+        "21-50": {
+          "n_impressions": 9387,
+          "means": {
+            "random": 0.28431451216161996,
+            "popularity": 0.3074142839327592,
+            "category_affinity": 0.37428695603874973,
+            "tfidf": 0.3662144129663391
+          },
+          "gap": {
+            "mean": -0.00807254307241062,
+            "ci_low": -0.014487235434068421,
+            "ci_high": -0.0013388267729205804
+          },
+          "popularity_minus_random": {
+            "mean": 0.023099771771139255,
+            "ci_low": 0.015816568968523247,
+            "ci_high": 0.029485949344149758
+          }
+        },
+        "51+": {
+          "n_impressions": 6765,
+          "means": {
+            "random": 0.2714892327600661,
+            "popularity": 0.285411737166593,
+            "category_affinity": 0.3591576086870168,
+            "tfidf": 0.35594007222379004
+          },
+          "gap": {
+            "mean": -0.0032175364632267556,
+            "ci_low": -0.010417106840113958,
+            "ci_high": 0.003805396249338043
+          },
+          "popularity_minus_random": {
+            "mean": 0.013922504406526925,
+            "ci_low": 0.006613647383478386,
+            "ci_high": 0.021630627507176557
+          }
+        }
+      },
+      "slices": {
+        "returning_user": {
+          "description": "user has a train impression before this day",
+          "n_impressions": 20330,
+          "means": {
+            "random": 0.3041349137106312,
+            "popularity": 0.3235944076031428,
+            "category_affinity": 0.38344354124529345,
+            "tfidf": 0.3716002465140853
+          },
+          "gap": {
+            "mean": -0.011843294731208154,
+            "ci_low": -0.01579054118310979,
+            "ci_high": -0.007731918609322719
+          },
+          "popularity_minus_random": {
+            "mean": 0.01945949389251156,
+            "ci_low": 0.015446008737864812,
+            "ci_high": 0.024153138636501155
+          }
+        },
+        "new_user": {
+          "description": "user has no train impression before this day",
+          "n_impressions": 13324,
+          "means": {
+            "random": 0.29620887290586456,
+            "popularity": 0.3334653394398477,
+            "category_affinity": 0.3762088120122605,
+            "tfidf": 0.36267570763973217
+          },
+          "gap": {
+            "mean": -0.013533104372528304,
+            "ci_low": -0.018926845722641143,
+            "ci_high": -0.00825038956990546
+          },
+          "popularity_minus_random": {
+            "mean": 0.037256466533983124,
+            "ci_low": 0.03171330985853391,
+            "ci_high": 0.042523308618852874
+          }
+        },
+        "history_none": {
+          "description": "no known History item",
+          "n_impressions": 776,
+          "means": {
+            "random": 0.307012370082405,
+            "popularity": 0.31409537170618834,
+            "category_affinity": 0.31409537170618834,
+            "tfidf": 0.31409537170618834
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.007083001623783336,
+            "ci_low": -0.014494592482003115,
+            "ci_high": 0.029319563500450344
+          }
+        },
+        "history_1_5": {
+          "description": "1 to 5 known History items",
+          "n_impressions": 4902,
+          "means": {
+            "random": 0.34379041756734796,
+            "popularity": 0.37913842178463236,
+            "category_affinity": 0.4031423070431578,
+            "tfidf": 0.3839474324865954
+          },
+          "gap": {
+            "mean": -0.01919487455656238,
+            "ci_low": -0.026887764073580022,
+            "ci_high": -0.011933981132568631
+          },
+          "popularity_minus_random": {
+            "mean": 0.0353480042172844,
+            "ci_low": 0.02642224826389222,
+            "ci_high": 0.043967674834851055
+          }
+        },
+        "top_category_0_33": {
+          "description": "6+ known items; top-category share in [0%, 33%)",
+          "n_impressions": 10728,
+          "means": {
+            "random": 0.28175194010628624,
+            "popularity": 0.30779897931649114,
+            "category_affinity": 0.3453933202704009,
+            "tfidf": 0.3419299856065488
+          },
+          "gap": {
+            "mean": -0.0034633346638521245,
+            "ci_low": -0.009436686923707043,
+            "ci_high": 0.0023486350818632904
+          },
+          "popularity_minus_random": {
+            "mean": 0.026047039210204903,
+            "ci_low": 0.01973590395881768,
+            "ci_high": 0.033098613372918674
+          }
+        },
+        "top_category_33_50": {
+          "description": "6+ known items; top-category share in [33%, 50%)",
+          "n_impressions": 10888,
+          "means": {
+            "random": 0.297165301288139,
+            "popularity": 0.32756972914159926,
+            "category_affinity": 0.3897330687389523,
+            "tfidf": 0.37538960393341175
+          },
+          "gap": {
+            "mean": -0.014343464805540551,
+            "ci_low": -0.02067919338273237,
+            "ci_high": -0.008818062580041315
+          },
+          "popularity_minus_random": {
+            "mean": 0.03040442785346026,
+            "ci_low": 0.02454559745387218,
+            "ci_high": 0.036247970329545465
+          }
+        },
+        "top_category_50_67": {
+          "description": "6+ known items; top-category share in [50%, 67%)",
+          "n_impressions": 4962,
+          "means": {
+            "random": 0.31184117324728233,
+            "popularity": 0.3260240105594748,
+            "category_affinity": 0.4161408852308914,
+            "tfidf": 0.3901280217931274
+          },
+          "gap": {
+            "mean": -0.02601286343776399,
+            "ci_low": -0.03513727487989786,
+            "ci_high": -0.018480644289807176
+          },
+          "popularity_minus_random": {
+            "mean": 0.014182837312192442,
+            "ci_low": 0.00558891432923206,
+            "ci_high": 0.022693502617593727
+          }
+        },
+        "top_category_67_100": {
+          "description": "6+ known items; top-category share in [67%, 100%]",
+          "n_impressions": 1398,
+          "means": {
+            "random": 0.2866388245331005,
+            "popularity": 0.30980982534977797,
+            "category_affinity": 0.41086376422915233,
+            "tfidf": 0.4075777398986492
+          },
+          "gap": {
+            "mean": -0.0032860243305031234,
+            "ci_low": -0.016776537480306324,
+            "ci_high": 0.009692165116275105
+          },
+          "popularity_minus_random": {
+            "mean": 0.023171000816677445,
+            "ci_low": 0.006752828659050929,
+            "ci_high": 0.042036551423313
+          }
+        }
+      },
+      "coverage": {
+        "n_impressions": 33654,
+        "n_users": 22011,
+        "n_statistics_impressions": 61417,
+        "candidates_per_impression": 35.01705592203007,
+        "share_impressions_user_in_statistics": 0.6040886670232365,
+        "share_users_in_statistics": 0.5648993684975694,
+        "share_impressions_no_known_history": 0.02305818030546146,
+        "share_history_items_unknown": 0.0,
+        "share_candidates_unseen_as_candidate": 0.2709238466342629,
+        "share_candidates_unclicked_before": 0.593311293344557,
+        "share_candidates_outside_tfidf_corpus": 0.26816601949656504,
+        "share_candidates_zero_tfidf_vector": 0.0,
+        "tfidf_vocabulary_size": 28228
+      },
+      "ties": {
+        "popularity": {
+          "n_impressions": 33654,
+          "share_pairs_tied": 0.08206722039411951,
+          "share_clicks_tied_with_a_non_click": 0.5055309734513275
+        },
+        "category_affinity": {
+          "n_impressions": 32878,
+          "share_pairs_tied": 0.23732460355390558,
+          "share_clicks_tied_with_a_non_click": 0.8110517641919663
+        },
+        "tfidf": {
+          "n_impressions": 32878,
+          "share_pairs_tied": 0.10411442491122931,
+          "share_clicks_tied_with_a_non_click": 0.173698945654548
+        }
+      }
+    },
+    "2019-11-13/1d": {
+      "day": "2019-11-13",
+      "statistics": "1d",
+      "window_days": 1,
+      "sample_fraction": null,
+      "fixed_targets": false,
+      "n_impressions": 31624,
+      "means": {
+        "random": 0.2773823577483931,
+        "popularity": 0.3017708612798276,
+        "category_affinity": 0.3615072297090987,
+        "tfidf": 0.36535268768025775
+      },
+      "gap": {
+        "mean": 0.0038454579711590386,
+        "ci_low": 0.00041852454889516476,
+        "ci_high": 0.00733485089848761
+      },
+      "popularity_minus_random": {
+        "mean": 0.024388503531434513,
+        "ci_low": 0.020934732910966928,
+        "ci_high": 0.027575697557287487
+      },
+      "n_users": 20884,
+      "n_statistics_impressions": 33654,
+      "share_impressions_tied": {
+        "random": 0.0,
+        "popularity": 0.8964077915507209,
+        "category_affinity": 0.8509676195294713,
+        "tfidf": 0.4041550720971414
+      },
+      "history_length": {
+        "0": {
+          "n_impressions": 731,
+          "means": {
+            "random": 0.30192851798131504,
+            "popularity": 0.29544830673803735,
+            "category_affinity": 0.29544830673803735,
+            "tfidf": 0.29544830673803735
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": -0.006480211243277689,
+            "ci_low": -0.03157424435547125,
+            "ci_high": 0.019477343678834195
+          }
+        },
+        "1-5": {
+          "n_impressions": 4658,
+          "means": {
+            "random": 0.32441582213227743,
+            "popularity": 0.34804022702283804,
+            "category_affinity": 0.3783848184387798,
+            "tfidf": 0.3716456449645588
+          },
+          "gap": {
+            "mean": -0.006739173474220983,
+            "ci_low": -0.015141760169485824,
+            "ci_high": 0.0010473175120737784
+          },
+          "popularity_minus_random": {
+            "mean": 0.023624404890560613,
+            "ci_low": 0.01396701000385087,
+            "ci_high": 0.03395970510668289
+          }
+        },
+        "6-20": {
+          "n_impressions": 10851,
+          "means": {
+            "random": 0.2917573886062767,
+            "popularity": 0.32225138651615637,
+            "category_affinity": 0.37772804705718366,
+            "tfidf": 0.37506278997525483
+          },
+          "gap": {
+            "mean": -0.002665257081928829,
+            "ci_low": -0.008907593739145821,
+            "ci_high": 0.0036924647667738865
+          },
+          "popularity_minus_random": {
+            "mean": 0.030493997909879667,
+            "ci_low": 0.023862875537784344,
+            "ci_high": 0.03654078178701028
+          }
+        },
+        "21-50": {
+          "n_impressions": 9067,
+          "means": {
+            "random": 0.25806144711946594,
+            "popularity": 0.2853090249466495,
+            "category_affinity": 0.35758596732546233,
+            "tfidf": 0.36593232696597416
+          },
+          "gap": {
+            "mean": 0.008346359640511836,
+            "ci_low": 0.002003547092065119,
+            "ci_high": 0.015035029642595421
+          },
+          "popularity_minus_random": {
+            "mean": 0.027247577827183567,
+            "ci_low": 0.019958696550268728,
+            "ci_high": 0.03383954831782116
+          }
+        },
+        "51+": {
+          "n_impressions": 6317,
+          "means": {
+            "random": 0.24289986868763455,
+            "popularity": 0.2568325001008864,
+            "category_affinity": 0.3344714946097403,
+            "tfidf": 0.35129025266868313
+          },
+          "gap": {
+            "mean": 0.01681875805894284,
+            "ci_low": 0.009732370657204574,
+            "ci_high": 0.02426085210560964
+          },
+          "popularity_minus_random": {
+            "mean": 0.013932631413251823,
+            "ci_low": 0.006316899396126892,
+            "ci_high": 0.02189761410726819
+          }
+        }
+      },
+      "slices": {
+        "returning_user": {
+          "description": "user has a train impression before this day",
+          "n_impressions": 24074,
+          "means": {
+            "random": 0.27444716442154227,
+            "popularity": 0.29642351548383367,
+            "category_affinity": 0.3604710898125066,
+            "tfidf": 0.36495405512946477
+          },
+          "gap": {
+            "mean": 0.004482965316958187,
+            "ci_low": 0.0007585758869598508,
+            "ci_high": 0.008387642523208023
+          },
+          "popularity_minus_random": {
+            "mean": 0.0219763510622914,
+            "ci_low": 0.01747033900597896,
+            "ci_high": 0.02590973237101906
+          }
+        },
+        "new_user": {
+          "description": "user has no train impression before this day",
+          "n_impressions": 7550,
+          "means": {
+            "random": 0.2867415424041026,
+            "popularity": 0.31882145766297443,
+            "category_affinity": 0.3648110749899676,
+            "tfidf": 0.366623771127647
+          },
+          "gap": {
+            "mean": 0.0018126961376793704,
+            "ci_low": -0.004559464135567635,
+            "ci_high": 0.008758648642610526
+          },
+          "popularity_minus_random": {
+            "mean": 0.03207991525887183,
+            "ci_low": 0.0245149101773013,
+            "ci_high": 0.038985553078593214
+          }
+        },
+        "history_none": {
+          "description": "no known History item",
+          "n_impressions": 731,
+          "means": {
+            "random": 0.30192851798131504,
+            "popularity": 0.29544830673803735,
+            "category_affinity": 0.29544830673803735,
+            "tfidf": 0.29544830673803735
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": -0.006480211243277689,
+            "ci_low": -0.03157424435547125,
+            "ci_high": 0.019477343678834195
+          }
+        },
+        "history_1_5": {
+          "description": "1 to 5 known History items",
+          "n_impressions": 4658,
+          "means": {
+            "random": 0.32441582213227743,
+            "popularity": 0.34804022702283804,
+            "category_affinity": 0.3783848184387798,
+            "tfidf": 0.3716456449645588
+          },
+          "gap": {
+            "mean": -0.006739173474220983,
+            "ci_low": -0.015141760169485824,
+            "ci_high": 0.0010473175120737784
+          },
+          "popularity_minus_random": {
+            "mean": 0.023624404890560613,
+            "ci_low": 0.01396701000385087,
+            "ci_high": 0.03395970510668289
+          }
+        },
+        "top_category_0_33": {
+          "description": "6+ known items; top-category share in [0%, 33%)",
+          "n_impressions": 10166,
+          "means": {
+            "random": 0.2608576289958671,
+            "popularity": 0.28513266571069923,
+            "category_affinity": 0.32466250773694816,
+            "tfidf": 0.3384353745578772
+          },
+          "gap": {
+            "mean": 0.013772866820929042,
+            "ci_low": 0.006823080318475925,
+            "ci_high": 0.019250756471889504
+          },
+          "popularity_minus_random": {
+            "mean": 0.02427503671483211,
+            "ci_low": 0.018462436615521664,
+            "ci_high": 0.030037296303669764
+          }
+        },
+        "top_category_33_50": {
+          "description": "6+ known items; top-category share in [33%, 50%)",
+          "n_impressions": 10158,
+          "means": {
+            "random": 0.2741295862314812,
+            "popularity": 0.2981690607566122,
+            "category_affinity": 0.3691392899528742,
+            "tfidf": 0.3723467008998539
+          },
+          "gap": {
+            "mean": 0.003207410946979683,
+            "ci_low": -0.0032021544445590077,
+            "ci_high": 0.009701724715196059
+          },
+          "popularity_minus_random": {
+            "mean": 0.024039474525131,
+            "ci_low": 0.01806526313632901,
+            "ci_high": 0.03008832238626033
+          }
+        },
+        "top_category_50_67": {
+          "description": "6+ known items; top-category share in [50%, 67%)",
+          "n_impressions": 4557,
+          "means": {
+            "random": 0.26895985923568205,
+            "popularity": 0.3007677107831073,
+            "category_affinity": 0.4015881436876756,
+            "tfidf": 0.3953025352975307
+          },
+          "gap": {
+            "mean": -0.0062856083901449145,
+            "ci_low": -0.015285154589533563,
+            "ci_high": 0.0023725497946675174
+          },
+          "popularity_minus_random": {
+            "mean": 0.03180785154742527,
+            "ci_low": 0.0226041077431465,
+            "ci_high": 0.040699841860406996
+          }
+        },
+        "top_category_67_100": {
+          "description": "6+ known items; top-category share in [67%, 100%]",
+          "n_impressions": 1354,
+          "means": {
+            "random": 0.2791462063887141,
+            "popularity": 0.30132878182875095,
+            "category_affinity": 0.4235910664899172,
+            "tfidf": 0.4302731239904781
+          },
+          "gap": {
+            "mean": 0.006682057500560945,
+            "ci_low": -0.008917153622710644,
+            "ci_high": 0.021712219489724932
+          },
+          "popularity_minus_random": {
+            "mean": 0.022182575440036822,
+            "ci_low": 0.005889804511432215,
+            "ci_high": 0.03933693149356774
+          }
+        }
+      },
+      "coverage": {
+        "n_impressions": 31624,
+        "n_users": 20884,
+        "n_statistics_impressions": 33654,
+        "candidates_per_impression": 38.9474133569441,
+        "share_impressions_user_in_statistics": 0.548317733367063,
+        "share_users_in_statistics": 0.48175636851177933,
+        "share_impressions_no_known_history": 0.02311535542625854,
+        "share_history_items_unknown": 0.0,
+        "share_candidates_unseen_as_candidate": 0.21017185567922655,
+        "share_candidates_unclicked_before": 0.5716484813745206,
+        "share_candidates_outside_tfidf_corpus": 0.2070841854940394,
+        "share_candidates_zero_tfidf_vector": 0.0,
+        "tfidf_vocabulary_size": 25974
+      },
+      "ties": {
+        "popularity": {
+          "n_impressions": 31624,
+          "share_pairs_tied": 0.08204563879556409,
+          "share_clicks_tied_with_a_non_click": 0.4967786326390192
+        },
+        "category_affinity": {
+          "n_impressions": 30893,
+          "share_pairs_tied": 0.23262887536064508,
+          "share_clicks_tied_with_a_non_click": 0.8191770882239959
+        },
+        "tfidf": {
+          "n_impressions": 30893,
+          "share_pairs_tied": 0.10518111606141788,
+          "share_clicks_tied_with_a_non_click": 0.16180801570702974
+        }
+      }
+    },
+    "2019-11-13/all": {
+      "day": "2019-11-13",
+      "statistics": "all",
+      "window_days": null,
+      "sample_fraction": null,
+      "fixed_targets": false,
+      "n_impressions": 31624,
+      "means": {
+        "random": 0.2773823577483931,
+        "popularity": 0.29303050959850396,
+        "category_affinity": 0.36053558615714953,
+        "tfidf": 0.3653867516973752
+      },
+      "gap": {
+        "mean": 0.004851165540225688,
+        "ci_low": 0.0014702809297540242,
+        "ci_high": 0.008590854465410792
+      },
+      "popularity_minus_random": {
+        "mean": 0.01564815185011087,
+        "ci_low": 0.0120559939523059,
+        "ci_high": 0.018684438379656994
+      },
+      "n_users": 20884,
+      "n_statistics_impressions": 95071,
+      "share_impressions_tied": {
+        "random": 0.0,
+        "popularity": 0.8932140146724007,
+        "category_affinity": 0.8376865671641791,
+        "tfidf": 0.3913799645838604
+      },
+      "history_length": {
+        "0": {
+          "n_impressions": 731,
+          "means": {
+            "random": 0.30192851798131504,
+            "popularity": 0.2864191911347632,
+            "category_affinity": 0.2864191911347632,
+            "tfidf": 0.2864191911347632
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": -0.015509326846551819,
+            "ci_low": -0.03961343541462067,
+            "ci_high": 0.008886326078717517
+          }
+        },
+        "1-5": {
+          "n_impressions": 4658,
+          "means": {
+            "random": 0.32441582213227743,
+            "popularity": 0.34675597070986747,
+            "category_affinity": 0.3779940642699854,
+            "tfidf": 0.37243703739763906
+          },
+          "gap": {
+            "mean": -0.005557026872346327,
+            "ci_low": -0.013536710637385372,
+            "ci_high": 0.002350326399116354
+          },
+          "popularity_minus_random": {
+            "mean": 0.022340148577590035,
+            "ci_low": 0.012264839396956221,
+            "ci_high": 0.032702463857887755
+          }
+        },
+        "6-20": {
+          "n_impressions": 10851,
+          "means": {
+            "random": 0.2917573886062767,
+            "popularity": 0.3136797649194585,
+            "category_affinity": 0.3764847985369715,
+            "tfidf": 0.37492582085994397
+          },
+          "gap": {
+            "mean": -0.0015589776770275066,
+            "ci_low": -0.007489971606696796,
+            "ci_high": 0.004528167680986078
+          },
+          "popularity_minus_random": {
+            "mean": 0.02192237631318178,
+            "ci_low": 0.01610128115430529,
+            "ci_high": 0.028389243870700086
+          }
+        },
+        "21-50": {
+          "n_impressions": 9067,
+          "means": {
+            "random": 0.25806144711946594,
+            "popularity": 0.2744344124956964,
+            "category_affinity": 0.35673676585054737,
+            "tfidf": 0.36626190744286374
+          },
+          "gap": {
+            "mean": 0.009525141592316377,
+            "ci_low": 0.0030556269457050925,
+            "ci_high": 0.016043320837151997
+          },
+          "popularity_minus_random": {
+            "mean": 0.016372965376230453,
+            "ci_low": 0.009609144333191514,
+            "ci_high": 0.023142067752987605
+          }
+        },
+        "51+": {
+          "n_impressions": 6317,
+          "means": {
+            "random": 0.24289986868763455,
+            "popularity": 0.24540116321315392,
+            "category_affinity": 0.33429472718901404,
+            "tfidf": 0.35168429473237
+          },
+          "gap": {
+            "mean": 0.017389567543355966,
+            "ci_low": 0.010389459419047828,
+            "ci_high": 0.024691112227817565
+          },
+          "popularity_minus_random": {
+            "mean": 0.0025012945255193653,
+            "ci_low": -0.004689120502288185,
+            "ci_high": 0.010260261365230764
+          }
+        }
+      },
+      "slices": {
+        "returning_user": {
+          "description": "user has a train impression before this day",
+          "n_impressions": 24074,
+          "means": {
+            "random": 0.27444716442154227,
+            "popularity": 0.28685307861347764,
+            "category_affinity": 0.35966323242383713,
+            "tfidf": 0.3650326027820602
+          },
+          "gap": {
+            "mean": 0.005369370358223047,
+            "ci_low": 0.0016352044327049373,
+            "ci_high": 0.0095027729275346
+          },
+          "popularity_minus_random": {
+            "mean": 0.012405914191935374,
+            "ci_low": 0.008138114899221406,
+            "ci_high": 0.016465228114777075
+          }
+        },
+        "new_user": {
+          "description": "user has no train impression before this day",
+          "n_impressions": 7550,
+          "means": {
+            "random": 0.2867415424041026,
+            "popularity": 0.31272792331155375,
+            "category_affinity": 0.36331718135923696,
+            "tfidf": 0.3665159942122485
+          },
+          "gap": {
+            "mean": 0.0031988128530115456,
+            "ci_low": -0.003139555184016033,
+            "ci_high": 0.01035702073753759
+          },
+          "popularity_minus_random": {
+            "mean": 0.025986380907451145,
+            "ci_low": 0.018865992396884124,
+            "ci_high": 0.032807232443655354
+          }
+        },
+        "history_none": {
+          "description": "no known History item",
+          "n_impressions": 731,
+          "means": {
+            "random": 0.30192851798131504,
+            "popularity": 0.2864191911347632,
+            "category_affinity": 0.2864191911347632,
+            "tfidf": 0.2864191911347632
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": -0.015509326846551819,
+            "ci_low": -0.03961343541462067,
+            "ci_high": 0.008886326078717517
+          }
+        },
+        "history_1_5": {
+          "description": "1 to 5 known History items",
+          "n_impressions": 4658,
+          "means": {
+            "random": 0.32441582213227743,
+            "popularity": 0.34675597070986747,
+            "category_affinity": 0.3779940642699854,
+            "tfidf": 0.37243703739763906
+          },
+          "gap": {
+            "mean": -0.005557026872346327,
+            "ci_low": -0.013536710637385372,
+            "ci_high": 0.002350326399116354
+          },
+          "popularity_minus_random": {
+            "mean": 0.022340148577590035,
+            "ci_low": 0.012264839396956221,
+            "ci_high": 0.032702463857887755
+          }
+        },
+        "top_category_0_33": {
+          "description": "6+ known items; top-category share in [0%, 33%)",
+          "n_impressions": 10166,
+          "means": {
+            "random": 0.2608576289958671,
+            "popularity": 0.2762059959936881,
+            "category_affinity": 0.3235296436110517,
+            "tfidf": 0.33840751408295766
+          },
+          "gap": {
+            "mean": 0.014877870471905974,
+            "ci_low": 0.007928873506837313,
+            "ci_high": 0.02012265825562548
+          },
+          "popularity_minus_random": {
+            "mean": 0.015348366997820995,
+            "ci_low": 0.009570872709014551,
+            "ci_high": 0.021435881705116698
+          }
+        },
+        "top_category_33_50": {
+          "description": "6+ known items; top-category share in [33%, 50%)",
+          "n_impressions": 10158,
+          "means": {
+            "random": 0.2741295862314812,
+            "popularity": 0.2870333408202875,
+            "category_affinity": 0.36815759280761395,
+            "tfidf": 0.37265129615464926
+          },
+          "gap": {
+            "mean": 0.004493703347035305,
+            "ci_low": -0.0019438129995526866,
+            "ci_high": 0.010702138214174603
+          },
+          "popularity_minus_random": {
+            "mean": 0.012903754588806271,
+            "ci_low": 0.006768296628441599,
+            "ci_high": 0.018718529702551626
+          }
+        },
+        "top_category_50_67": {
+          "description": "6+ known items; top-category share in [50%, 67%)",
+          "n_impressions": 4557,
+          "means": {
+            "random": 0.26895985923568205,
+            "popularity": 0.2888545021992002,
+            "category_affinity": 0.4012110982840402,
+            "tfidf": 0.3954564683088325
+          },
+          "gap": {
+            "mean": -0.0057546299752077035,
+            "ci_low": -0.014896230622605354,
+            "ci_high": 0.0029356418547528186
+          },
+          "popularity_minus_random": {
+            "mean": 0.019894642963518172,
+            "ci_low": 0.010855275256864236,
+            "ci_high": 0.028534184963592817
+          }
+        },
+        "top_category_67_100": {
+          "description": "6+ known items; top-category share in [67%, 100%]",
+          "n_impressions": 1354,
+          "means": {
+            "random": 0.2791462063887141,
+            "popularity": 0.29714202172152687,
+            "category_affinity": 0.4242558618718813,
+            "tfidf": 0.43062681401067543
+          },
+          "gap": {
+            "mean": 0.006370952138794128,
+            "ci_low": -0.009528734869243863,
+            "ci_high": 0.02203876327883817
+          },
+          "popularity_minus_random": {
+            "mean": 0.017995815332812748,
+            "ci_low": 0.00188882330632469,
+            "ci_high": 0.03534685142947191
+          }
+        }
+      },
+      "coverage": {
+        "n_impressions": 31624,
+        "n_users": 20884,
+        "n_statistics_impressions": 95071,
+        "candidates_per_impression": 38.9474133569441,
+        "share_impressions_user_in_statistics": 0.7612572729572477,
+        "share_users_in_statistics": 0.7192108791419268,
+        "share_impressions_no_known_history": 0.02311535542625854,
+        "share_history_items_unknown": 0.0,
+        "share_candidates_unseen_as_candidate": 0.2079878344333277,
+        "share_candidates_unclicked_before": 0.5421382136330016,
+        "share_candidates_outside_tfidf_corpus": 0.20552208256574594,
+        "share_candidates_zero_tfidf_vector": 0.0,
+        "tfidf_vocabulary_size": 30110
+      },
+      "ties": {
+        "popularity": {
+          "n_impressions": 31624,
+          "share_pairs_tied": 0.0754648911737632,
+          "share_clicks_tied_with_a_non_click": 0.4758241070870082
+        },
+        "category_affinity": {
+          "n_impressions": 30893,
+          "share_pairs_tied": 0.23262887536064508,
+          "share_clicks_tied_with_a_non_click": 0.8191770882239959
+        },
+        "tfidf": {
+          "n_impressions": 30893,
+          "share_pairs_tied": 0.10518110832854821,
+          "share_clicks_tied_with_a_non_click": 0.16180801570702974
+        }
+      }
+    },
+    "2019-11-14/1d": {
+      "day": "2019-11-14",
+      "statistics": "1d",
+      "window_days": 1,
+      "sample_fraction": null,
+      "fixed_targets": true,
+      "n_impressions": 30270,
+      "means": {
+        "random": 0.2614862344087628,
+        "popularity": 0.2807628106996817,
+        "category_affinity": 0.33920346041506205,
+        "tfidf": 0.3517187004841681
+      },
+      "gap": {
+        "mean": 0.012515240069106037,
+        "ci_low": 0.009316481896340252,
+        "ci_high": 0.01626202404643684
+      },
+      "popularity_minus_random": {
+        "mean": 0.01927657629091889,
+        "ci_low": 0.015679196377287853,
+        "ci_high": 0.02267968200600459
+      },
+      "n_users": 20179,
+      "n_statistics_impressions": 31624,
+      "share_impressions_tied": {
+        "random": 0.0,
+        "popularity": 0.8941856623719855,
+        "category_affinity": 0.8440370003303601,
+        "tfidf": 0.3739676247109349
+      },
+      "history_length": {
+        "0": {
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.30710230532911253,
+            "category_affinity": 0.30710230532911253,
+            "tfidf": 0.30710230532911253
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.0656064546411142,
+            "ci_low": 0.04654045018127542,
+            "ci_high": 0.08844424861384699
+          }
+        },
+        "1-5": {
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.31126389344068767,
+            "category_affinity": 0.3406798355019097,
+            "tfidf": 0.3422760313348912
+          },
+          "gap": {
+            "mean": 0.001596195832981484,
+            "ci_low": -0.007394569960638311,
+            "ci_high": 0.009813118651254024
+          },
+          "popularity_minus_random": {
+            "mean": 0.018633645674074495,
+            "ci_low": 0.009562538069650484,
+            "ci_high": 0.027635154417181364
+          }
+        },
+        "6-20": {
+          "n_impressions": 10405,
+          "means": {
+            "random": 0.2746942601820765,
+            "popularity": 0.295458262007046,
+            "category_affinity": 0.3541051080079139,
+            "tfidf": 0.3617276245421164
+          },
+          "gap": {
+            "mean": 0.007622516534202484,
+            "ci_low": 0.0023460471883274695,
+            "ci_high": 0.014236544607814835
+          },
+          "popularity_minus_random": {
+            "mean": 0.020764001824969514,
+            "ci_low": 0.014459288810440628,
+            "ci_high": 0.027042102652059304
+          }
+        },
+        "21-50": {
+          "n_impressions": 8656,
+          "means": {
+            "random": 0.24192109538536202,
+            "popularity": 0.2610779089891974,
+            "category_affinity": 0.3334040191208739,
+            "tfidf": 0.3540601260184562
+          },
+          "gap": {
+            "mean": 0.020656106897582294,
+            "ci_low": 0.014051703870363688,
+            "ci_high": 0.027662469276315004
+          },
+          "popularity_minus_random": {
+            "mean": 0.019156813603835393,
+            "ci_low": 0.012776526900361296,
+            "ci_high": 0.025836002704118483
+          }
+        },
+        "51+": {
+          "n_impressions": 6026,
+          "means": {
+            "random": 0.24654807784158392,
+            "popularity": 0.2579636026891151,
+            "category_affinity": 0.3248354089476105,
+            "tfidf": 0.34370098333007143
+          },
+          "gap": {
+            "mean": 0.018865574382460948,
+            "ci_low": 0.011091193855776739,
+            "ci_high": 0.026159920925135794
+          },
+          "popularity_minus_random": {
+            "mean": 0.011415524847531194,
+            "ci_low": 0.0036389212739683678,
+            "ci_high": 0.018735126931099782
+          }
+        }
+      },
+      "slices": {
+        "returning_user": {
+          "description": "user has a train impression before this day",
+          "n_impressions": 25312,
+          "means": {
+            "random": 0.25895938233514026,
+            "popularity": 0.27744342289015933,
+            "category_affinity": 0.3372256013425819,
+            "tfidf": 0.3502194108418721
+          },
+          "gap": {
+            "mean": 0.012993809499290188,
+            "ci_low": 0.009347851954703031,
+            "ci_high": 0.016908140565563036
+          },
+          "popularity_minus_random": {
+            "mean": 0.018484040555019066,
+            "ci_low": 0.014824377554614588,
+            "ci_high": 0.02218786378315855
+          }
+        },
+        "new_user": {
+          "description": "user has no train impression before this day",
+          "n_impressions": 4958,
+          "means": {
+            "random": 0.2743865328532025,
+            "popularity": 0.2977092294642294,
+            "category_affinity": 0.349300993461173,
+            "tfidf": 0.359373000489371
+          },
+          "gap": {
+            "mean": 0.010072007028197993,
+            "ci_low": 0.0018401709283341332,
+            "ci_high": 0.01757064903326411
+          },
+          "popularity_minus_random": {
+            "mean": 0.023322696611026872,
+            "ci_low": 0.014368460692630607,
+            "ci_high": 0.03248548080569968
+          }
+        },
+        "history_none": {
+          "description": "no known History item",
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.30710230532911253,
+            "category_affinity": 0.30710230532911253,
+            "tfidf": 0.30710230532911253
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.0656064546411142,
+            "ci_low": 0.04654045018127542,
+            "ci_high": 0.08844424861384699
+          }
+        },
+        "history_1_5": {
+          "description": "1 to 5 known History items",
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.31126389344068767,
+            "category_affinity": 0.3406798355019097,
+            "tfidf": 0.3422760313348912
+          },
+          "gap": {
+            "mean": 0.001596195832981484,
+            "ci_low": -0.007394569960638311,
+            "ci_high": 0.009813118651254024
+          },
+          "popularity_minus_random": {
+            "mean": 0.018633645674074495,
+            "ci_low": 0.009562538069650484,
+            "ci_high": 0.027635154417181364
+          }
+        },
+        "top_category_0_33": {
+          "description": "6+ known items; top-category share in [0%, 33%)",
+          "n_impressions": 9921,
+          "means": {
+            "random": 0.24963867736087114,
+            "popularity": 0.26606269458521836,
+            "category_affinity": 0.31365120779655653,
+            "tfidf": 0.33706906292268457
+          },
+          "gap": {
+            "mean": 0.02341785512612804,
+            "ci_low": 0.01695592424795251,
+            "ci_high": 0.029249676696955867
+          },
+          "popularity_minus_random": {
+            "mean": 0.01642401722434722,
+            "ci_low": 0.01133697590375765,
+            "ci_high": 0.022431576269773407
+          }
+        },
+        "top_category_33_50": {
+          "description": "6+ known items; top-category share in [33%, 50%)",
+          "n_impressions": 9570,
+          "means": {
+            "random": 0.26401845741537655,
+            "popularity": 0.2808354387196097,
+            "category_affinity": 0.3465423499754023,
+            "tfidf": 0.35944910369473204
+          },
+          "gap": {
+            "mean": 0.012906753719329755,
+            "ci_low": 0.00640380842338187,
+            "ci_high": 0.01822872448198197
+          },
+          "popularity_minus_random": {
+            "mean": 0.016816981304233147,
+            "ci_low": 0.010386181504128148,
+            "ci_high": 0.02285989071456093
+          }
+        },
+        "top_category_50_67": {
+          "description": "6+ known items; top-category share in [50%, 67%)",
+          "n_impressions": 4323,
+          "means": {
+            "random": 0.25809608624506736,
+            "popularity": 0.2797180581144296,
+            "category_affinity": 0.36825889917225685,
+            "tfidf": 0.3761252503622168
+          },
+          "gap": {
+            "mean": 0.00786635118995993,
+            "ci_low": 0.00045071745222878307,
+            "ci_high": 0.01677479836120349
+          },
+          "popularity_minus_random": {
+            "mean": 0.021621971869362266,
+            "ci_low": 0.012217155494638948,
+            "ci_high": 0.03084520121316742
+          }
+        },
+        "top_category_67_100": {
+          "description": "6+ known items; top-category share in [67%, 100%]",
+          "n_impressions": 1273,
+          "means": {
+            "random": 0.2505028747241173,
+            "popularity": 0.27666768220197885,
+            "category_affinity": 0.3988530005616859,
+            "tfidf": 0.3846684656662099
+          },
+          "gap": {
+            "mean": -0.014184534895475998,
+            "ci_low": -0.030943024644389094,
+            "ci_high": 0.0018773868984775783
+          },
+          "popularity_minus_random": {
+            "mean": 0.02616480747786154,
+            "ci_low": 0.008504653372914823,
+            "ci_high": 0.042032874272061045
+          }
+        }
+      },
+      "coverage": {
+        "n_impressions": 30270,
+        "n_users": 20179,
+        "n_statistics_impressions": 31624,
+        "candidates_per_impression": 40.38417575156921,
+        "share_impressions_user_in_statistics": 0.5313842087875784,
+        "share_users_in_statistics": 0.4657812577431984,
+        "share_impressions_no_known_history": 0.02550379914106376,
+        "share_history_items_unknown": 0.0,
+        "share_candidates_unseen_as_candidate": 0.30867232370959785,
+        "share_candidates_unclicked_before": 0.6113892913208048,
+        "share_candidates_outside_tfidf_corpus": 0.2859945240173458,
+        "share_candidates_zero_tfidf_vector": 0.0,
+        "tfidf_vocabulary_size": 25849
+      },
+      "ties": {
+        "popularity": {
+          "n_impressions": 30270,
+          "share_pairs_tied": 0.062472905523527605,
+          "share_clicks_tied_with_a_non_click": 0.5083395621996797
+        },
+        "category_affinity": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.2370512723630258,
+          "share_clicks_tied_with_a_non_click": 0.8309590602261769
+        },
+        "tfidf": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.10063096851062822,
+          "share_clicks_tied_with_a_non_click": 0.15874024721662136
+        }
+      }
+    },
+    "2019-11-14/all": {
+      "day": "2019-11-14",
+      "statistics": "all",
+      "window_days": null,
+      "sample_fraction": null,
+      "fixed_targets": true,
+      "n_impressions": 30270,
+      "means": {
+        "random": 0.2614862344087628,
+        "popularity": 0.27629860409777357,
+        "category_affinity": 0.3382562327921578,
+        "tfidf": 0.35197020380403177
+      },
+      "gap": {
+        "mean": 0.013713971011873993,
+        "ci_low": 0.010463976619883547,
+        "ci_high": 0.01741944369023546
+      },
+      "popularity_minus_random": {
+        "mean": 0.014812369689010785,
+        "ci_low": 0.011293013705831828,
+        "ci_high": 0.01795421757967349
+      },
+      "n_users": 20179,
+      "n_statistics_impressions": 126695,
+      "share_impressions_tied": {
+        "random": 0.0,
+        "popularity": 0.8937892302609844,
+        "category_affinity": 0.8434753881731087,
+        "tfidf": 0.37086223984142713
+      },
+      "history_length": {
+        "0": {
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.3044782542668067,
+            "category_affinity": 0.3044782542668067,
+            "tfidf": 0.3044782542668067
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.06298240357880835,
+            "ci_low": 0.04337980397897956,
+            "ci_high": 0.08418599753111813
+          }
+        },
+        "1-5": {
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.3109557119400242,
+            "category_affinity": 0.3391617178655807,
+            "tfidf": 0.3434101866942051
+          },
+          "gap": {
+            "mean": 0.0042484688286243966,
+            "ci_low": -0.004348754662435694,
+            "ci_high": 0.012314574309285658
+          },
+          "popularity_minus_random": {
+            "mean": 0.01832546417341102,
+            "ci_low": 0.009528076758448469,
+            "ci_high": 0.026890807034960874
+          }
+        },
+        "6-20": {
+          "n_impressions": 10405,
+          "means": {
+            "random": 0.2746942601820765,
+            "popularity": 0.2908035436558398,
+            "category_affinity": 0.3533021313154281,
+            "tfidf": 0.36195951828528267
+          },
+          "gap": {
+            "mean": 0.008657386969854575,
+            "ci_low": 0.0034405803113899684,
+            "ci_high": 0.015277380372263212
+          },
+          "popularity_minus_random": {
+            "mean": 0.016109283473763336,
+            "ci_low": 0.009833758519085288,
+            "ci_high": 0.022126719278358443
+          }
+        },
+        "21-50": {
+          "n_impressions": 8656,
+          "means": {
+            "random": 0.24192109538536202,
+            "popularity": 0.25627217955898,
+            "category_affinity": 0.3324492563116775,
+            "tfidf": 0.35402779320319955
+          },
+          "gap": {
+            "mean": 0.02157853689152206,
+            "ci_low": 0.014956527137695142,
+            "ci_high": 0.02839085111110108
+          },
+          "popularity_minus_random": {
+            "mean": 0.014351084173617995,
+            "ci_low": 0.008172367928006167,
+            "ci_high": 0.02128592536601023
+          }
+        },
+        "51+": {
+          "n_impressions": 6026,
+          "means": {
+            "random": 0.24654807784158392,
+            "popularity": 0.25104099408839053,
+            "category_affinity": 0.3242826382092026,
+            "tfidf": 0.34411635539672525
+          },
+          "gap": {
+            "mean": 0.019833717187522637,
+            "ci_low": 0.012176732580350492,
+            "ci_high": 0.0272141933548603
+          },
+          "popularity_minus_random": {
+            "mean": 0.004492916246806616,
+            "ci_low": -0.0034907052751575467,
+            "ci_high": 0.011914385833420938
+          }
+        }
+      },
+      "slices": {
+        "returning_user": {
+          "description": "user has a train impression before this day",
+          "n_impressions": 25312,
+          "means": {
+            "random": 0.25895938233514026,
+            "popularity": 0.27248193188061987,
+            "category_affinity": 0.33617197909246066,
+            "tfidf": 0.35026671104094126
+          },
+          "gap": {
+            "mean": 0.014094731948480599,
+            "ci_low": 0.010354539283548072,
+            "ci_high": 0.018074631210496503
+          },
+          "popularity_minus_random": {
+            "mean": 0.0135225495454796,
+            "ci_low": 0.01001010889276471,
+            "ci_high": 0.017343999046731055
+          }
+        },
+        "new_user": {
+          "description": "user has no train impression before this day",
+          "n_impressions": 4958,
+          "means": {
+            "random": 0.2743865328532025,
+            "popularity": 0.2957838011854288,
+            "category_affinity": 0.3488969406676587,
+            "tfidf": 0.36066701881398466
+          },
+          "gap": {
+            "mean": 0.011770078146325968,
+            "ci_low": 0.00333517716963098,
+            "ci_high": 0.01894528832858179
+          },
+          "popularity_minus_random": {
+            "mean": 0.02139726833222627,
+            "ci_low": 0.012941331299448326,
+            "ci_high": 0.030528005925413087
+          }
+        },
+        "history_none": {
+          "description": "no known History item",
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.3044782542668067,
+            "category_affinity": 0.3044782542668067,
+            "tfidf": 0.3044782542668067
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.06298240357880835,
+            "ci_low": 0.04337980397897956,
+            "ci_high": 0.08418599753111813
+          }
+        },
+        "history_1_5": {
+          "description": "1 to 5 known History items",
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.3109557119400242,
+            "category_affinity": 0.3391617178655807,
+            "tfidf": 0.3434101866942051
+          },
+          "gap": {
+            "mean": 0.0042484688286243966,
+            "ci_low": -0.004348754662435694,
+            "ci_high": 0.012314574309285658
+          },
+          "popularity_minus_random": {
+            "mean": 0.01832546417341102,
+            "ci_low": 0.009528076758448469,
+            "ci_high": 0.026890807034960874
+          }
+        },
+        "top_category_0_33": {
+          "description": "6+ known items; top-category share in [0%, 33%)",
+          "n_impressions": 9921,
+          "means": {
+            "random": 0.24963867736087114,
+            "popularity": 0.2602960511360159,
+            "category_affinity": 0.31279075882199736,
+            "tfidf": 0.33681603952797273
+          },
+          "gap": {
+            "mean": 0.02402528070597537,
+            "ci_low": 0.01754795727152521,
+            "ci_high": 0.02976980137228019
+          },
+          "popularity_minus_random": {
+            "mean": 0.010657373775144752,
+            "ci_low": 0.005329437446247258,
+            "ci_high": 0.016118315302079213
+          }
+        },
+        "top_category_33_50": {
+          "description": "6+ known items; top-category share in [33%, 50%)",
+          "n_impressions": 9570,
+          "means": {
+            "random": 0.26401845741537655,
+            "popularity": 0.27469745363844145,
+            "category_affinity": 0.3454266356321426,
+            "tfidf": 0.3598482737021617
+          },
+          "gap": {
+            "mean": 0.014421638070019116,
+            "ci_low": 0.007809287650356192,
+            "ci_high": 0.01966222180654278
+          },
+          "popularity_minus_random": {
+            "mean": 0.010678996223064896,
+            "ci_low": 0.0037949587356760355,
+            "ci_high": 0.017003758150181958
+          }
+        },
+        "top_category_50_67": {
+          "description": "6+ known items; top-category share in [50%, 67%)",
+          "n_impressions": 4323,
+          "means": {
+            "random": 0.25809608624506736,
+            "popularity": 0.2763816810804592,
+            "category_affinity": 0.368061740041193,
+            "tfidf": 0.37622622366912045
+          },
+          "gap": {
+            "mean": 0.008164483627927432,
+            "ci_low": 0.0003206477293500739,
+            "ci_high": 0.01715955950436492
+          },
+          "popularity_minus_random": {
+            "mean": 0.018285594835391827,
+            "ci_low": 0.008736280876891747,
+            "ci_high": 0.027735327465444215
+          }
+        },
+        "top_category_67_100": {
+          "description": "6+ known items; top-category share in [67%, 100%]",
+          "n_impressions": 1273,
+          "means": {
+            "random": 0.2505028747241173,
+            "popularity": 0.2755900443260494,
+            "category_affinity": 0.39894398534866204,
+            "tfidf": 0.38693845321100906
+          },
+          "gap": {
+            "mean": -0.012005532137652986,
+            "ci_low": -0.028948254089274365,
+            "ci_high": 0.003847534155888205
+          },
+          "popularity_minus_random": {
+            "mean": 0.02508716960193208,
+            "ci_low": 0.008575153824921614,
+            "ci_high": 0.04264496104546409
+          }
+        }
+      },
+      "coverage": {
+        "n_impressions": 30270,
+        "n_users": 20179,
+        "n_statistics_impressions": 126695,
+        "candidates_per_impression": 40.38417575156921,
+        "share_impressions_user_in_statistics": 0.8362074661380905,
+        "share_users_in_statistics": 0.8023687992467416,
+        "share_impressions_no_known_history": 0.02550379914106376,
+        "share_history_items_unknown": 0.0,
+        "share_candidates_unseen_as_candidate": 0.29219692922860957,
+        "share_candidates_unclicked_before": 0.6033381079800954,
+        "share_candidates_outside_tfidf_corpus": 0.2858292792464838,
+        "share_candidates_zero_tfidf_vector": 0.0,
+        "tfidf_vocabulary_size": 31482
+      },
+      "ties": {
+        "popularity": {
+          "n_impressions": 30270,
+          "share_pairs_tied": 0.061687796784093835,
+          "share_clicks_tied_with_a_non_click": 0.5017618793379605
+        },
+        "category_affinity": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.2370512723630258,
+          "share_clicks_tied_with_a_non_click": 0.8309590602261769
+        },
+        "tfidf": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.10063058659587455,
+          "share_clicks_tied_with_a_non_click": 0.15874024721662136
+        }
+      }
+    },
+    "2019-11-14/2d": {
+      "day": "2019-11-14",
+      "statistics": "2d",
+      "window_days": 2,
+      "sample_fraction": null,
+      "fixed_targets": true,
+      "n_impressions": 30270,
+      "means": {
+        "random": 0.2614862344087628,
+        "popularity": 0.27639793707602656,
+        "category_affinity": 0.33860839722222785,
+        "tfidf": 0.351968203146867
+      },
+      "gap": {
+        "mean": 0.013359805924639145,
+        "ci_low": 0.010145578685866238,
+        "ci_high": 0.01709770428936145
+      },
+      "popularity_minus_random": {
+        "mean": 0.014911702667263771,
+        "ci_low": 0.0115070473244992,
+        "ci_high": 0.01831411274821722
+      },
+      "n_users": 20179,
+      "n_statistics_impressions": 65278,
+      "share_impressions_tied": {
+        "random": 0.0,
+        "popularity": 0.893987446316485,
+        "category_affinity": 0.8437727122563594,
+        "tfidf": 0.37386851668318466
+      },
+      "history_length": {
+        "0": {
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.3014583162297992,
+            "category_affinity": 0.3014583162297992,
+            "tfidf": 0.3014583162297992
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.05996246554180085,
+            "ci_low": 0.040842867953495725,
+            "ci_high": 0.08205213608864725
+          }
+        },
+        "1-5": {
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.3113677879062032,
+            "category_affinity": 0.34083907712946987,
+            "tfidf": 0.34367986502437986
+          },
+          "gap": {
+            "mean": 0.0028407878949099907,
+            "ci_low": -0.005996730264640647,
+            "ci_high": 0.011021393060709284
+          },
+          "popularity_minus_random": {
+            "mean": 0.018737540139590003,
+            "ci_low": 0.009999752541507865,
+            "ci_high": 0.02763658975206761
+          }
+        },
+        "6-20": {
+          "n_impressions": 10405,
+          "means": {
+            "random": 0.2746942601820765,
+            "popularity": 0.29124955041530204,
+            "category_affinity": 0.35363505773213727,
+            "tfidf": 0.3617861588507171
+          },
+          "gap": {
+            "mean": 0.008151101118579807,
+            "ci_low": 0.0027889411270305923,
+            "ci_high": 0.014612381912121785
+          },
+          "popularity_minus_random": {
+            "mean": 0.01655529023322555,
+            "ci_low": 0.010369820198143745,
+            "ci_high": 0.022768598022694243
+          }
+        },
+        "21-50": {
+          "n_impressions": 8656,
+          "means": {
+            "random": 0.24192109538536202,
+            "popularity": 0.2562100394580324,
+            "category_affinity": 0.33267292549162614,
+            "tfidf": 0.35472518745284176
+          },
+          "gap": {
+            "mean": 0.022052261961215625,
+            "ci_low": 0.015372275623461759,
+            "ci_high": 0.02928714741015314
+          },
+          "popularity_minus_random": {
+            "mean": 0.014288944072670368,
+            "ci_low": 0.008232377804111098,
+            "ci_high": 0.02109356743414929
+          }
+        },
+        "51+": {
+          "n_impressions": 6026,
+          "means": {
+            "random": 0.24654807784158392,
+            "popularity": 0.2509443659289262,
+            "category_affinity": 0.32431456618170224,
+            "tfidf": 0.3435933619432806
+          },
+          "gap": {
+            "mean": 0.01927879576157837,
+            "ci_low": 0.011424171197851248,
+            "ci_high": 0.026564091095240817
+          },
+          "popularity_minus_random": {
+            "mean": 0.004396288087342298,
+            "ci_low": -0.0032665623080344575,
+            "ci_high": 0.011622843085335146
+          }
+        }
+      },
+      "slices": {
+        "returning_user": {
+          "description": "user has a train impression before this day",
+          "n_impressions": 25312,
+          "means": {
+            "random": 0.25895938233514026,
+            "popularity": 0.27275777539352025,
+            "category_affinity": 0.3364443003270853,
+            "tfidf": 0.3503009702744917
+          },
+          "gap": {
+            "mean": 0.01385666994740642,
+            "ci_low": 0.010158414227911874,
+            "ci_high": 0.017836837469506057
+          },
+          "popularity_minus_random": {
+            "mean": 0.013798393058379987,
+            "ci_low": 0.010259310207432594,
+            "ci_high": 0.017604461722633122
+          }
+        },
+        "new_user": {
+          "description": "user has no train impression before this day",
+          "n_impressions": 4958,
+          "means": {
+            "random": 0.2743865328532025,
+            "popularity": 0.29498199768667555,
+            "category_affinity": 0.3496567273169937,
+            "tfidf": 0.3604799011028093
+          },
+          "gap": {
+            "mean": 0.010823173785815599,
+            "ci_low": 0.002532448946573255,
+            "ci_high": 0.01831170744992545
+          },
+          "popularity_minus_random": {
+            "mean": 0.02059546483347302,
+            "ci_low": 0.011913245573040486,
+            "ci_high": 0.02966614542599636
+          }
+        },
+        "history_none": {
+          "description": "no known History item",
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.3014583162297992,
+            "category_affinity": 0.3014583162297992,
+            "tfidf": 0.3014583162297992
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.05996246554180085,
+            "ci_low": 0.040842867953495725,
+            "ci_high": 0.08205213608864725
+          }
+        },
+        "history_1_5": {
+          "description": "1 to 5 known History items",
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.3113677879062032,
+            "category_affinity": 0.34083907712946987,
+            "tfidf": 0.34367986502437986
+          },
+          "gap": {
+            "mean": 0.0028407878949099907,
+            "ci_low": -0.005996730264640647,
+            "ci_high": 0.011021393060709284
+          },
+          "popularity_minus_random": {
+            "mean": 0.018737540139590003,
+            "ci_low": 0.009999752541507865,
+            "ci_high": 0.02763658975206761
+          }
+        },
+        "top_category_0_33": {
+          "description": "6+ known items; top-category share in [0%, 33%)",
+          "n_impressions": 9921,
+          "means": {
+            "random": 0.24963867736087114,
+            "popularity": 0.26090314121979885,
+            "category_affinity": 0.31308715683894933,
+            "tfidf": 0.3376221628144607
+          },
+          "gap": {
+            "mean": 0.024535005975511393,
+            "ci_low": 0.018085680439994208,
+            "ci_high": 0.03024733184362188
+          },
+          "popularity_minus_random": {
+            "mean": 0.011264463858927709,
+            "ci_low": 0.005916098411920493,
+            "ci_high": 0.016787149752114112
+          }
+        },
+        "top_category_33_50": {
+          "description": "6+ known items; top-category share in [33%, 50%)",
+          "n_impressions": 9570,
+          "means": {
+            "random": 0.26401845741537655,
+            "popularity": 0.27510590025529963,
+            "category_affinity": 0.34577626455073807,
+            "tfidf": 0.3595182207081898
+          },
+          "gap": {
+            "mean": 0.013741956157451718,
+            "ci_low": 0.007296267455714358,
+            "ci_high": 0.019042129652514426
+          },
+          "popularity_minus_random": {
+            "mean": 0.011087442839923078,
+            "ci_low": 0.004253122803109,
+            "ci_high": 0.01758571122824642
+          }
+        },
+        "top_category_50_67": {
+          "description": "6+ known items; top-category share in [50%, 67%)",
+          "n_impressions": 4323,
+          "means": {
+            "random": 0.25809608624506736,
+            "popularity": 0.27528775259311533,
+            "category_affinity": 0.36812244201202254,
+            "tfidf": 0.3761958260648261
+          },
+          "gap": {
+            "mean": 0.008073384052803556,
+            "ci_low": 0.0005462460442722619,
+            "ci_high": 0.016829142887181892
+          },
+          "popularity_minus_random": {
+            "mean": 0.017191666348047974,
+            "ci_low": 0.007702682052419048,
+            "ci_high": 0.02628875381266216
+          }
+        },
+        "top_category_67_100": {
+          "description": "6+ known items; top-category share in [67%, 100%]",
+          "n_impressions": 1273,
+          "means": {
+            "random": 0.2505028747241173,
+            "popularity": 0.2742686086117641,
+            "category_affinity": 0.39819272820234686,
+            "tfidf": 0.3840898656448025
+          },
+          "gap": {
+            "mean": -0.014102862557544338,
+            "ci_low": -0.03086742069646228,
+            "ci_high": 0.0019520344869979013
+          },
+          "popularity_minus_random": {
+            "mean": 0.0237657338876468,
+            "ci_low": 0.007068407052373558,
+            "ci_high": 0.04008931286113052
+          }
+        }
+      },
+      "coverage": {
+        "n_impressions": 30270,
+        "n_users": 20179,
+        "n_statistics_impressions": 65278,
+        "candidates_per_impression": 40.38417575156921,
+        "share_impressions_user_in_statistics": 0.7113643871820284,
+        "share_users_in_statistics": 0.655582536300114,
+        "share_impressions_no_known_history": 0.02550379914106376,
+        "share_history_items_unknown": 0.0,
+        "share_candidates_unseen_as_candidate": 0.3083287454731522,
+        "share_candidates_unclicked_before": 0.6060515580045958,
+        "share_candidates_outside_tfidf_corpus": 0.285867727287229,
+        "share_candidates_zero_tfidf_vector": 0.0,
+        "tfidf_vocabulary_size": 28380
+      },
+      "ties": {
+        "popularity": {
+          "n_impressions": 30270,
+          "share_pairs_tied": 0.06191896222602864,
+          "share_clicks_tied_with_a_non_click": 0.5034490122797651
+        },
+        "category_affinity": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.2370512723630258,
+          "share_clicks_tied_with_a_non_click": 0.8309590602261769
+        },
+        "tfidf": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.10063096851062822,
+          "share_clicks_tied_with_a_non_click": 0.15874024721662136
+        }
+      }
+    },
+    "2019-11-14/3d": {
+      "day": "2019-11-14",
+      "statistics": "3d",
+      "window_days": 3,
+      "sample_fraction": null,
+      "fixed_targets": true,
+      "n_impressions": 30270,
+      "means": {
+        "random": 0.2614862344087628,
+        "popularity": 0.2760909327261498,
+        "category_affinity": 0.33827480323643316,
+        "tfidf": 0.35178377581688025
+      },
+      "gap": {
+        "mean": 0.013508972580447087,
+        "ci_low": 0.010323438400989704,
+        "ci_high": 0.017218478167071696
+      },
+      "popularity_minus_random": {
+        "mean": 0.014604698317387033,
+        "ci_low": 0.011116984070035347,
+        "ci_high": 0.01783264484422546
+      },
+      "n_users": 20179,
+      "n_statistics_impressions": 98077,
+      "share_impressions_tied": {
+        "random": 0.0,
+        "popularity": 0.8938883382887347,
+        "category_affinity": 0.8437066402378592,
+        "tfidf": 0.37182028410967954
+      },
+      "history_length": {
+        "0": {
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.3039609566097235,
+            "category_affinity": 0.3039609566097235,
+            "tfidf": 0.3039609566097235
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.06246510592172516,
+            "ci_low": 0.042843720663317215,
+            "ci_high": 0.08416590239839235
+          }
+        },
+        "1-5": {
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.3100238550008098,
+            "category_affinity": 0.339014546954154,
+            "tfidf": 0.34298212263027655
+          },
+          "gap": {
+            "mean": 0.003967575676122548,
+            "ci_low": -0.004548094408884433,
+            "ci_high": 0.012070797444173867
+          },
+          "popularity_minus_random": {
+            "mean": 0.01739360723419664,
+            "ci_low": 0.008575383564871428,
+            "ci_high": 0.026036971633968616
+          }
+        },
+        "6-20": {
+          "n_impressions": 10405,
+          "means": {
+            "random": 0.2746942601820765,
+            "popularity": 0.29095832276412875,
+            "category_affinity": 0.3533035827787082,
+            "tfidf": 0.36186389867527763
+          },
+          "gap": {
+            "mean": 0.008560315896569415,
+            "ci_low": 0.003338308042237706,
+            "ci_high": 0.01494200906511435
+          },
+          "popularity_minus_random": {
+            "mean": 0.016264062582052263,
+            "ci_low": 0.00997877260556819,
+            "ci_high": 0.02251014445268704
+          }
+        },
+        "21-50": {
+          "n_impressions": 8656,
+          "means": {
+            "random": 0.24192109538536202,
+            "popularity": 0.2559762515634013,
+            "category_affinity": 0.33255451152101834,
+            "tfidf": 0.35420838476305727
+          },
+          "gap": {
+            "mean": 0.021653873242038935,
+            "ci_low": 0.014880697411864768,
+            "ci_high": 0.0285174534676811
+          },
+          "popularity_minus_random": {
+            "mean": 0.01405515617803929,
+            "ci_low": 0.008041410905407916,
+            "ci_high": 0.02070039294594621
+          }
+        },
+        "51+": {
+          "n_impressions": 6026,
+          "means": {
+            "random": 0.24654807784158392,
+            "popularity": 0.2509040273507659,
+            "category_affinity": 0.3243962227532288,
+            "tfidf": 0.3434651922215105
+          },
+          "gap": {
+            "mean": 0.019068969468281682,
+            "ci_low": 0.011342439211812713,
+            "ci_high": 0.026616457876631257
+          },
+          "popularity_minus_random": {
+            "mean": 0.004355949509181972,
+            "ci_low": -0.0035536873417268433,
+            "ci_high": 0.011479068550477874
+          }
+        }
+      },
+      "slices": {
+        "returning_user": {
+          "description": "user has a train impression before this day",
+          "n_impressions": 25312,
+          "means": {
+            "random": 0.25895938233514026,
+            "popularity": 0.27229132291518904,
+            "category_affinity": 0.3361252516419279,
+            "tfidf": 0.35008979093979253
+          },
+          "gap": {
+            "mean": 0.01396453929786462,
+            "ci_low": 0.01029462115595287,
+            "ci_high": 0.017859269809837996
+          },
+          "popularity_minus_random": {
+            "mean": 0.013331940580048773,
+            "ci_low": 0.009805862675427992,
+            "ci_high": 0.017124255008771096
+          }
+        },
+        "new_user": {
+          "description": "user has no train impression before this day",
+          "n_impressions": 4958,
+          "means": {
+            "random": 0.2743865328532025,
+            "popularity": 0.29548902137783184,
+            "category_affinity": 0.34924887543492333,
+            "tfidf": 0.3604320503648523
+          },
+          "gap": {
+            "mean": 0.011183174929928985,
+            "ci_low": 0.00296546022911867,
+            "ci_high": 0.01838532500591099
+          },
+          "popularity_minus_random": {
+            "mean": 0.021102488524629315,
+            "ci_low": 0.012732008408453113,
+            "ci_high": 0.030356773472284833
+          }
+        },
+        "history_none": {
+          "description": "no known History item",
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.3039609566097235,
+            "category_affinity": 0.3039609566097235,
+            "tfidf": 0.3039609566097235
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.06246510592172516,
+            "ci_low": 0.042843720663317215,
+            "ci_high": 0.08416590239839235
+          }
+        },
+        "history_1_5": {
+          "description": "1 to 5 known History items",
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.3100238550008098,
+            "category_affinity": 0.339014546954154,
+            "tfidf": 0.34298212263027655
+          },
+          "gap": {
+            "mean": 0.003967575676122548,
+            "ci_low": -0.004548094408884433,
+            "ci_high": 0.012070797444173867
+          },
+          "popularity_minus_random": {
+            "mean": 0.01739360723419664,
+            "ci_low": 0.008575383564871428,
+            "ci_high": 0.026036971633968616
+          }
+        },
+        "top_category_0_33": {
+          "description": "6+ known items; top-category share in [0%, 33%)",
+          "n_impressions": 9921,
+          "means": {
+            "random": 0.24963867736087114,
+            "popularity": 0.2599927381488241,
+            "category_affinity": 0.31283077781736524,
+            "tfidf": 0.3368430281360433
+          },
+          "gap": {
+            "mean": 0.02401225031867804,
+            "ci_low": 0.017704449099446403,
+            "ci_high": 0.029605879003813753
+          },
+          "popularity_minus_random": {
+            "mean": 0.010354060787952979,
+            "ci_low": 0.00516055359060632,
+            "ci_high": 0.015957309126566534
+          }
+        },
+        "top_category_33_50": {
+          "description": "6+ known items; top-category share in [33%, 50%)",
+          "n_impressions": 9570,
+          "means": {
+            "random": 0.26401845741537655,
+            "popularity": 0.2745337035113,
+            "category_affinity": 0.3454901899604595,
+            "tfidf": 0.35964678508064135
+          },
+          "gap": {
+            "mean": 0.014156595120181859,
+            "ci_low": 0.007644311323126509,
+            "ci_high": 0.019641051274122027
+          },
+          "popularity_minus_random": {
+            "mean": 0.01051524609592347,
+            "ci_low": 0.003633384866326615,
+            "ci_high": 0.01698446353889513
+          }
+        },
+        "top_category_50_67": {
+          "description": "6+ known items; top-category share in [50%, 67%)",
+          "n_impressions": 4323,
+          "means": {
+            "random": 0.25809608624506736,
+            "popularity": 0.27680819964288883,
+            "category_affinity": 0.36847714087859706,
+            "tfidf": 0.3759360914153746
+          },
+          "gap": {
+            "mean": 0.007458950536777531,
+            "ci_low": -0.0002442083283708458,
+            "ci_high": 0.01655244363508144
+          },
+          "popularity_minus_random": {
+            "mean": 0.018712113397821473,
+            "ci_low": 0.009256761062004643,
+            "ci_high": 0.028298803373882894
+          }
+        },
+        "top_category_67_100": {
+          "description": "6+ known items; top-category share in [67%, 100%]",
+          "n_impressions": 1273,
+          "means": {
+            "random": 0.2505028747241173,
+            "popularity": 0.27634101011425233,
+            "category_affinity": 0.39800889566653336,
+            "tfidf": 0.38659210840850106
+          },
+          "gap": {
+            "mean": -0.011416787258032302,
+            "ci_low": -0.02824021454670151,
+            "ci_high": 0.004244944652704568
+          },
+          "popularity_minus_random": {
+            "mean": 0.02583813539013502,
+            "ci_low": 0.009059925205859303,
+            "ci_high": 0.04300655324603971
+          }
+        }
+      },
+      "coverage": {
+        "n_impressions": 30270,
+        "n_users": 20179,
+        "n_statistics_impressions": 98077,
+        "candidates_per_impression": 40.38417575156921,
+        "share_impressions_user_in_statistics": 0.7946151304922365,
+        "share_users_in_statistics": 0.7519698696664849,
+        "share_impressions_no_known_history": 0.02550379914106376,
+        "share_history_items_unknown": 0.0,
+        "share_candidates_unseen_as_candidate": 0.292644398979409,
+        "share_candidates_unclicked_before": 0.6042076881356708,
+        "share_candidates_outside_tfidf_corpus": 0.28583009728990394,
+        "share_candidates_zero_tfidf_vector": 0.0,
+        "tfidf_vocabulary_size": 30023
+      },
+      "ties": {
+        "popularity": {
+          "n_impressions": 30270,
+          "share_pairs_tied": 0.061770338859183746,
+          "share_clicks_tied_with_a_non_click": 0.5023171382808329
+        },
+        "category_affinity": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.2370512723630258,
+          "share_clicks_tied_with_a_non_click": 0.8309590602261769
+        },
+        "tfidf": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.10063058659587455,
+          "share_clicks_tied_with_a_non_click": 0.15874024721662136
+        }
+      }
+    },
+    "2019-11-14/4d": {
+      "day": "2019-11-14",
+      "statistics": "4d",
+      "window_days": 4,
+      "sample_fraction": null,
+      "fixed_targets": true,
+      "n_impressions": 30270,
+      "means": {
+        "random": 0.2614862344087628,
+        "popularity": 0.27617959732110986,
+        "category_affinity": 0.3383454822343784,
+        "tfidf": 0.3519539557736404
+      },
+      "gap": {
+        "mean": 0.013608473539262034,
+        "ci_low": 0.010410649337762978,
+        "ci_high": 0.01725753306865
+      },
+      "popularity_minus_random": {
+        "mean": 0.014693362912347074,
+        "ci_low": 0.011138657259197791,
+        "ci_high": 0.017939600637609233
+      },
+      "n_users": 20179,
+      "n_statistics_impressions": 113125,
+      "share_impressions_tied": {
+        "random": 0.0,
+        "popularity": 0.8938553022794846,
+        "category_affinity": 0.843607532210109,
+        "tfidf": 0.37106045589692765
+      },
+      "history_length": {
+        "0": {
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.30473215706263446,
+            "category_affinity": 0.30473215706263446,
+            "tfidf": 0.30473215706263446
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.06323630637463612,
+            "ci_low": 0.044015821526184676,
+            "ci_high": 0.084680534889159
+          }
+        },
+        "1-5": {
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.3106392192768453,
+            "category_affinity": 0.33926083955899217,
+            "tfidf": 0.34345867561017285
+          },
+          "gap": {
+            "mean": 0.004197836051180681,
+            "ci_low": -0.004468197637622961,
+            "ci_high": 0.012296332569798707
+          },
+          "popularity_minus_random": {
+            "mean": 0.01800897151023212,
+            "ci_low": 0.009126786689531378,
+            "ci_high": 0.026695513645740732
+          }
+        },
+        "6-20": {
+          "n_impressions": 10405,
+          "means": {
+            "random": 0.2746942601820765,
+            "popularity": 0.2908534946647009,
+            "category_affinity": 0.3533529438495309,
+            "tfidf": 0.3619012866131039
+          },
+          "gap": {
+            "mean": 0.00854834276357297,
+            "ci_low": 0.0033348485921929965,
+            "ci_high": 0.015055090519499428
+          },
+          "popularity_minus_random": {
+            "mean": 0.016159234482624407,
+            "ci_low": 0.009908321887003147,
+            "ci_high": 0.022342979800185042
+          }
+        },
+        "21-50": {
+          "n_impressions": 8656,
+          "means": {
+            "random": 0.24192109538536202,
+            "popularity": 0.2560518117903368,
+            "category_affinity": 0.3325845274150477,
+            "tfidf": 0.3541356565712611
+          },
+          "gap": {
+            "mean": 0.021551129156213433,
+            "ci_low": 0.014797344265893794,
+            "ci_high": 0.028374410328267582
+          },
+          "popularity_minus_random": {
+            "mean": 0.014130716404974791,
+            "ci_low": 0.007973706606290746,
+            "ci_high": 0.021122573817099886
+          }
+        },
+        "51+": {
+          "n_impressions": 6026,
+          "means": {
+            "random": 0.24654807784158392,
+            "popularity": 0.25087263434850826,
+            "category_affinity": 0.3243438281826324,
+            "tfidf": 0.3439123244953682
+          },
+          "gap": {
+            "mean": 0.019568496312735773,
+            "ci_low": 0.011928780995483099,
+            "ci_high": 0.02695168199402726
+          },
+          "popularity_minus_random": {
+            "mean": 0.004324556506924343,
+            "ci_low": -0.0036075311830081453,
+            "ci_high": 0.011670225530280815
+          }
+        }
+      },
+      "slices": {
+        "returning_user": {
+          "description": "user has a train impression before this day",
+          "n_impressions": 25312,
+          "means": {
+            "random": 0.25895938233514026,
+            "popularity": 0.2724321937764112,
+            "category_affinity": 0.3362426244140649,
+            "tfidf": 0.3502037115975802
+          },
+          "gap": {
+            "mean": 0.013961087183515297,
+            "ci_low": 0.010193110904154945,
+            "ci_high": 0.01784705449466408
+          },
+          "popularity_minus_random": {
+            "mean": 0.013472811441270938,
+            "ci_low": 0.009878150271093346,
+            "ci_high": 0.017292364246685735
+          }
+        },
+        "new_user": {
+          "description": "user has no train impression before this day",
+          "n_impressions": 4958,
+          "means": {
+            "random": 0.2743865328532025,
+            "popularity": 0.2953111581366434,
+            "category_affinity": 0.34908116943643025,
+            "tfidf": 0.36088945004238565
+          },
+          "gap": {
+            "mean": 0.011808280605955401,
+            "ci_low": 0.0034129022085064445,
+            "ci_high": 0.019158423557803186
+          },
+          "popularity_minus_random": {
+            "mean": 0.020924625283440856,
+            "ci_low": 0.012319308304801208,
+            "ci_high": 0.03015535227565796
+          }
+        },
+        "history_none": {
+          "description": "no known History item",
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.30473215706263446,
+            "category_affinity": 0.30473215706263446,
+            "tfidf": 0.30473215706263446
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.06323630637463612,
+            "ci_low": 0.044015821526184676,
+            "ci_high": 0.084680534889159
+          }
+        },
+        "history_1_5": {
+          "description": "1 to 5 known History items",
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.3106392192768453,
+            "category_affinity": 0.33926083955899217,
+            "tfidf": 0.34345867561017285
+          },
+          "gap": {
+            "mean": 0.004197836051180681,
+            "ci_low": -0.004468197637622961,
+            "ci_high": 0.012296332569798707
+          },
+          "popularity_minus_random": {
+            "mean": 0.01800897151023212,
+            "ci_low": 0.009126786689531378,
+            "ci_high": 0.026695513645740732
+          }
+        },
+        "top_category_0_33": {
+          "description": "6+ known items; top-category share in [0%, 33%)",
+          "n_impressions": 9921,
+          "means": {
+            "random": 0.24963867736087114,
+            "popularity": 0.2601298750037156,
+            "category_affinity": 0.31284729476268736,
+            "tfidf": 0.3368032078301833
+          },
+          "gap": {
+            "mean": 0.02395591306749595,
+            "ci_low": 0.01768033960458493,
+            "ci_high": 0.029585953316560124
+          },
+          "popularity_minus_random": {
+            "mean": 0.010491197642844452,
+            "ci_low": 0.00526801697592596,
+            "ci_high": 0.015932567413257836
+          }
+        },
+        "top_category_33_50": {
+          "description": "6+ known items; top-category share in [33%, 50%)",
+          "n_impressions": 9570,
+          "means": {
+            "random": 0.26401845741537655,
+            "popularity": 0.27465447020370387,
+            "category_affinity": 0.34549257650609494,
+            "tfidf": 0.3598114399160083
+          },
+          "gap": {
+            "mean": 0.01431886340991334,
+            "ci_low": 0.007834216922909882,
+            "ci_high": 0.019670662546500697
+          },
+          "popularity_minus_random": {
+            "mean": 0.01063601278832732,
+            "ci_low": 0.0038050167882183157,
+            "ci_high": 0.01721993916722057
+          }
+        },
+        "top_category_50_67": {
+          "description": "6+ known items; top-category share in [50%, 67%)",
+          "n_impressions": 4323,
+          "means": {
+            "random": 0.25809608624506736,
+            "popularity": 0.2762865201507222,
+            "category_affinity": 0.36839390790960413,
+            "tfidf": 0.3760402232756321
+          },
+          "gap": {
+            "mean": 0.007646315366027945,
+            "ci_low": 3.336548018252817e-07,
+            "ci_high": 0.01677364821759162
+          },
+          "popularity_minus_random": {
+            "mean": 0.018190433905654835,
+            "ci_low": 0.008795375647138719,
+            "ci_high": 0.027560834995988985
+          }
+        },
+        "top_category_67_100": {
+          "description": "6+ known items; top-category share in [67%, 100%]",
+          "n_impressions": 1273,
+          "means": {
+            "random": 0.2505028747241173,
+            "popularity": 0.2756442993358979,
+            "category_affinity": 0.3985044197096594,
+            "tfidf": 0.38723865498763954
+          },
+          "gap": {
+            "mean": -0.011265764722019844,
+            "ci_low": -0.027945482004534693,
+            "ci_high": 0.004560753621795155
+          },
+          "popularity_minus_random": {
+            "mean": 0.025141424611780594,
+            "ci_low": 0.00879751759412683,
+            "ci_high": 0.0423281804156191
+          }
+        }
+      },
+      "coverage": {
+        "n_impressions": 30270,
+        "n_users": 20179,
+        "n_statistics_impressions": 113125,
+        "candidates_per_impression": 40.38417575156921,
+        "share_impressions_user_in_statistics": 0.819590353485299,
+        "share_users_in_statistics": 0.7818524208335398,
+        "share_impressions_no_known_history": 0.02550379914106376,
+        "share_history_items_unknown": 0.0,
+        "share_candidates_unseen_as_candidate": 0.29220101944571014,
+        "share_candidates_unclicked_before": 0.603493536229916,
+        "share_candidates_outside_tfidf_corpus": 0.2858292792464838,
+        "share_candidates_zero_tfidf_vector": 0.0,
+        "tfidf_vocabulary_size": 30841
+      },
+      "ties": {
+        "popularity": {
+          "n_impressions": 30270,
+          "share_pairs_tied": 0.06172106398397408,
+          "share_clicks_tied_with_a_non_click": 0.5018473037907101
+        },
+        "category_affinity": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.2370512723630258,
+          "share_clicks_tied_with_a_non_click": 0.8309590602261769
+        },
+        "tfidf": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.10063058659587455,
+          "share_clicks_tied_with_a_non_click": 0.15874024721662136
+        }
+      }
+    },
+    "2019-11-14/all_sample25": {
+      "day": "2019-11-14",
+      "statistics": "all_sample25",
+      "window_days": null,
+      "sample_fraction": 0.25,
+      "fixed_targets": true,
+      "n_impressions": 30270,
+      "means": {
+        "random": 0.2614862344087628,
+        "popularity": 0.27611362825037244,
+        "category_affinity": 0.33820850289084015,
+        "tfidf": 0.35201139087158634
+      },
+      "gap": {
+        "mean": 0.013802887980746192,
+        "ci_low": 0.010589747990232254,
+        "ci_high": 0.017470515140317427
+      },
+      "popularity_minus_random": {
+        "mean": 0.01462739384160966,
+        "ci_low": 0.011197229129566567,
+        "ci_high": 0.017848688071096817
+      },
+      "n_users": 20179,
+      "n_statistics_impressions": 31306,
+      "share_impressions_tied": {
+        "random": 0.0,
+        "popularity": 0.9027089527585068,
+        "category_affinity": 0.8642880740006608,
+        "tfidf": 0.40842418235877104
+      },
+      "history_length": {
+        "0": {
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.3083925553065247,
+            "category_affinity": 0.3083925553065247,
+            "tfidf": 0.3083925553065247
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.06689670461852637,
+            "ci_low": 0.04730535614342418,
+            "ci_high": 0.08870946310307364
+          }
+        },
+        "1-5": {
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.309070759357383,
+            "category_affinity": 0.3394607676550709,
+            "tfidf": 0.3424085930381986
+          },
+          "gap": {
+            "mean": 0.0029478253831277113,
+            "ci_low": -0.005513621035108642,
+            "ci_high": 0.011123292450277874
+          },
+          "popularity_minus_random": {
+            "mean": 0.016440511590769813,
+            "ci_low": 0.007692495914884191,
+            "ci_high": 0.02507640754919107
+          }
+        },
+        "6-20": {
+          "n_impressions": 10405,
+          "means": {
+            "random": 0.2746942601820765,
+            "popularity": 0.29003084459100065,
+            "category_affinity": 0.35258218775064004,
+            "tfidf": 0.36174588664925245
+          },
+          "gap": {
+            "mean": 0.009163698898612405,
+            "ci_low": 0.003949494353659204,
+            "ci_high": 0.01592491745564173
+          },
+          "popularity_minus_random": {
+            "mean": 0.015336584408924159,
+            "ci_low": 0.009067438334249861,
+            "ci_high": 0.021324570440184237
+          }
+        },
+        "21-50": {
+          "n_impressions": 8656,
+          "means": {
+            "random": 0.24192109538536202,
+            "popularity": 0.25677897096115887,
+            "category_affinity": 0.332724502191208,
+            "tfidf": 0.3548980176247556
+          },
+          "gap": {
+            "mean": 0.022173515433547564,
+            "ci_low": 0.015295218973605917,
+            "ci_high": 0.02890840763978718
+          },
+          "popularity_minus_random": {
+            "mean": 0.014857875575796847,
+            "ci_low": 0.008714353246267676,
+            "ci_high": 0.021759816608977557
+          }
+        },
+        "51+": {
+          "n_impressions": 6026,
+          "means": {
+            "random": 0.24654807784158392,
+            "popularity": 0.25159635650640005,
+            "category_affinity": 0.32417025044309183,
+            "tfidf": 0.3436737892382061
+          },
+          "gap": {
+            "mean": 0.01950353879511424,
+            "ci_low": 0.011741558395761773,
+            "ci_high": 0.026812825507114803
+          },
+          "popularity_minus_random": {
+            "mean": 0.005048278664816136,
+            "ci_low": -0.002688046420317577,
+            "ci_high": 0.012282760500449737
+          }
+        }
+      },
+      "slices": {
+        "returning_user": {
+          "description": "user has a train impression before this day",
+          "n_impressions": 25312,
+          "means": {
+            "random": 0.25895938233514026,
+            "popularity": 0.27264134126288053,
+            "category_affinity": 0.3361260052313243,
+            "tfidf": 0.350311373369279
+          },
+          "gap": {
+            "mean": 0.01418536813795468,
+            "ci_low": 0.010288517094607819,
+            "ci_high": 0.01807920305624005
+          },
+          "popularity_minus_random": {
+            "mean": 0.013681958927740268,
+            "ci_low": 0.01015935605034898,
+            "ci_high": 0.017059376976885036
+          }
+        },
+        "new_user": {
+          "description": "user has no train impression before this day",
+          "n_impressions": 4958,
+          "means": {
+            "random": 0.2743865328532025,
+            "popularity": 0.2938406408012791,
+            "category_affinity": 0.34884024568181765,
+            "tfidf": 0.36069046368691526
+          },
+          "gap": {
+            "mean": 0.011850218005097612,
+            "ci_low": 0.0036079384876705925,
+            "ci_high": 0.019510310250454205
+          },
+          "popularity_minus_random": {
+            "mean": 0.01945410794807656,
+            "ci_low": 0.010707795668265085,
+            "ci_high": 0.02935316997691399
+          }
+        },
+        "history_none": {
+          "description": "no known History item",
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.3083925553065247,
+            "category_affinity": 0.3083925553065247,
+            "tfidf": 0.3083925553065247
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.06689670461852637,
+            "ci_low": 0.04730535614342418,
+            "ci_high": 0.08870946310307364
+          }
+        },
+        "history_1_5": {
+          "description": "1 to 5 known History items",
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.309070759357383,
+            "category_affinity": 0.3394607676550709,
+            "tfidf": 0.3424085930381986
+          },
+          "gap": {
+            "mean": 0.0029478253831277113,
+            "ci_low": -0.005513621035108642,
+            "ci_high": 0.011123292450277874
+          },
+          "popularity_minus_random": {
+            "mean": 0.016440511590769813,
+            "ci_low": 0.007692495914884191,
+            "ci_high": 0.02507640754919107
+          }
+        },
+        "top_category_0_33": {
+          "description": "6+ known items; top-category share in [0%, 33%)",
+          "n_impressions": 9921,
+          "means": {
+            "random": 0.24963867736087114,
+            "popularity": 0.259225254960515,
+            "category_affinity": 0.31254943299346866,
+            "tfidf": 0.3372172058262929
+          },
+          "gap": {
+            "mean": 0.02466777283282423,
+            "ci_low": 0.018020631788028645,
+            "ci_high": 0.030443671484011895
+          },
+          "popularity_minus_random": {
+            "mean": 0.009586577599643875,
+            "ci_low": 0.0042993453602345995,
+            "ci_high": 0.01554652335509025
+          }
+        },
+        "top_category_33_50": {
+          "description": "6+ known items; top-category share in [33%, 50%)",
+          "n_impressions": 9570,
+          "means": {
+            "random": 0.26401845741537655,
+            "popularity": 0.2740549279755131,
+            "category_affinity": 0.34543259345746385,
+            "tfidf": 0.3598375985364632
+          },
+          "gap": {
+            "mean": 0.014405005078999333,
+            "ci_low": 0.008007867899674179,
+            "ci_high": 0.019569008077756283
+          },
+          "popularity_minus_random": {
+            "mean": 0.010036470560136568,
+            "ci_low": 0.0036473778946624485,
+            "ci_high": 0.016532675928723727
+          }
+        },
+        "top_category_50_67": {
+          "description": "6+ known items; top-category share in [50%, 67%)",
+          "n_impressions": 4323,
+          "means": {
+            "random": 0.25809608624506736,
+            "popularity": 0.2788882882689303,
+            "category_affinity": 0.36708077157393587,
+            "tfidf": 0.3759052436442985
+          },
+          "gap": {
+            "mean": 0.008824472070362632,
+            "ci_low": 0.0010021267867797706,
+            "ci_high": 0.018182090639407927
+          },
+          "popularity_minus_random": {
+            "mean": 0.02079220202386295,
+            "ci_low": 0.011011035311211831,
+            "ci_high": 0.03054192764376172
+          }
+        },
+        "top_category_67_100": {
+          "description": "6+ known items; top-category share in [67%, 100%]",
+          "n_impressions": 1273,
+          "means": {
+            "random": 0.2505028747241173,
+            "popularity": 0.2800124662538915,
+            "category_affinity": 0.3995662718400011,
+            "tfidf": 0.3870584130588209
+          },
+          "gap": {
+            "mean": -0.012507858781180214,
+            "ci_low": -0.028971405276215712,
+            "ci_high": 0.0032308653610948175
+          },
+          "popularity_minus_random": {
+            "mean": 0.02950959152977417,
+            "ci_low": 0.01379894891671807,
+            "ci_high": 0.045434086222871914
+          }
+        }
+      },
+      "coverage": {
+        "n_impressions": 30270,
+        "n_users": 20179,
+        "n_statistics_impressions": 31306,
+        "candidates_per_impression": 40.38417575156921,
+        "share_impressions_user_in_statistics": 0.5004625041295011,
+        "share_users_in_statistics": 0.43788096536002774,
+        "share_impressions_no_known_history": 0.02550379914106376,
+        "share_history_items_unknown": 0.0,
+        "share_candidates_unseen_as_candidate": 0.3645324186517172,
+        "share_candidates_unclicked_before": 0.6712283494583325,
+        "share_candidates_outside_tfidf_corpus": 0.3578334610844474,
+        "share_candidates_zero_tfidf_vector": 0.0,
+        "tfidf_vocabulary_size": 28278
+      },
+      "ties": {
+        "popularity": {
+          "n_impressions": 30270,
+          "share_pairs_tied": 0.07293669745696628,
+          "share_clicks_tied_with_a_non_click": 0.5746502936465563
+        },
+        "category_affinity": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.2370512723630258,
+          "share_clicks_tied_with_a_non_click": 0.8309590602261769
+        },
+        "tfidf": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.10063059398162694,
+          "share_clicks_tied_with_a_non_click": 0.15874024721662136
+        }
+      }
+    },
+    "2019-11-14/all_sample50": {
+      "day": "2019-11-14",
+      "statistics": "all_sample50",
+      "window_days": null,
+      "sample_fraction": 0.5,
+      "fixed_targets": true,
+      "n_impressions": 30270,
+      "means": {
+        "random": 0.2614862344087628,
+        "popularity": 0.27607580830230083,
+        "category_affinity": 0.3380238093710418,
+        "tfidf": 0.35210855237228667
+      },
+      "gap": {
+        "mean": 0.014084743001244848,
+        "ci_low": 0.010961423077689963,
+        "ci_high": 0.017732537875617405
+      },
+      "popularity_minus_random": {
+        "mean": 0.014589573893538044,
+        "ci_low": 0.011101105561457878,
+        "ci_high": 0.017783665535039465
+      },
+      "n_users": 20179,
+      "n_statistics_impressions": 62813,
+      "share_impressions_tied": {
+        "random": 0.0,
+        "popularity": 0.8970928311859927,
+        "category_affinity": 0.8528576148001321,
+        "tfidf": 0.37789890981169477
+      },
+      "history_length": {
+        "0": {
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.3050174384295807,
+            "category_affinity": 0.3050174384295807,
+            "tfidf": 0.3050174384295807
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.06352158774158234,
+            "ci_low": 0.043659609517329064,
+            "ci_high": 0.08621977430665517
+          }
+        },
+        "1-5": {
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.3080180476529109,
+            "category_affinity": 0.33847982473976884,
+            "tfidf": 0.3431807057399709
+          },
+          "gap": {
+            "mean": 0.004700881000202051,
+            "ci_low": -0.004139173619678496,
+            "ci_high": 0.013204447020240505
+          },
+          "popularity_minus_random": {
+            "mean": 0.015387799886297737,
+            "ci_low": 0.0063880515744275555,
+            "ci_high": 0.023691393762900078
+          }
+        },
+        "6-20": {
+          "n_impressions": 10405,
+          "means": {
+            "random": 0.2746942601820765,
+            "popularity": 0.29024232034829267,
+            "category_affinity": 0.3530556441289646,
+            "tfidf": 0.3620419429440687
+          },
+          "gap": {
+            "mean": 0.008986298815104099,
+            "ci_low": 0.0036371679475374705,
+            "ci_high": 0.015211202728730595
+          },
+          "popularity_minus_random": {
+            "mean": 0.015548060166216182,
+            "ci_low": 0.009609001811366659,
+            "ci_high": 0.021694581991576926
+          }
+        },
+        "21-50": {
+          "n_impressions": 8656,
+          "means": {
+            "random": 0.24192109538536202,
+            "popularity": 0.2576527878562994,
+            "category_affinity": 0.33243737148336705,
+            "tfidf": 0.3544702135636325
+          },
+          "gap": {
+            "mean": 0.022032842080265458,
+            "ci_low": 0.01546895921385306,
+            "ci_high": 0.029009470731972874
+          },
+          "popularity_minus_random": {
+            "mean": 0.015731692470937392,
+            "ci_low": 0.009265298158560094,
+            "ci_high": 0.022452143069495337
+          }
+        },
+        "51+": {
+          "n_impressions": 6026,
+          "means": {
+            "random": 0.24654807784158392,
+            "popularity": 0.25098900958146464,
+            "category_affinity": 0.3239878651750374,
+            "tfidf": 0.34413238298749255
+          },
+          "gap": {
+            "mean": 0.02014451781245513,
+            "ci_low": 0.012604591145561889,
+            "ci_high": 0.0272668961237005
+          },
+          "popularity_minus_random": {
+            "mean": 0.004440931739880721,
+            "ci_low": -0.003411552552800567,
+            "ci_high": 0.01174873034733736
+          }
+        }
+      },
+      "slices": {
+        "returning_user": {
+          "description": "user has a train impression before this day",
+          "n_impressions": 25312,
+          "means": {
+            "random": 0.25895938233514026,
+            "popularity": 0.27243814205538075,
+            "category_affinity": 0.3359194045055957,
+            "tfidf": 0.35034138254008845
+          },
+          "gap": {
+            "mean": 0.014421978034492744,
+            "ci_low": 0.010720024444311093,
+            "ci_high": 0.018350176026875522
+          },
+          "popularity_minus_random": {
+            "mean": 0.013478759720240485,
+            "ci_low": 0.009911995799384146,
+            "ci_high": 0.017253947027747536
+          }
+        },
+        "new_user": {
+          "description": "user has no train impression before this day",
+          "n_impressions": 4958,
+          "means": {
+            "random": 0.2743865328532025,
+            "popularity": 0.2946471290046081,
+            "category_affinity": 0.3487673946784584,
+            "tfidf": 0.36113045692908374
+          },
+          "gap": {
+            "mean": 0.012363062250625334,
+            "ci_low": 0.004014361984681724,
+            "ci_high": 0.019607883599769414
+          },
+          "popularity_minus_random": {
+            "mean": 0.020260596151405574,
+            "ci_low": 0.0116783391927673,
+            "ci_high": 0.02964235405645142
+          }
+        },
+        "history_none": {
+          "description": "no known History item",
+          "n_impressions": 772,
+          "means": {
+            "random": 0.24149585068799834,
+            "popularity": 0.3050174384295807,
+            "category_affinity": 0.3050174384295807,
+            "tfidf": 0.3050174384295807
+          },
+          "gap": {
+            "mean": 0.0,
+            "ci_low": 0.0,
+            "ci_high": 0.0
+          },
+          "popularity_minus_random": {
+            "mean": 0.06352158774158234,
+            "ci_low": 0.043659609517329064,
+            "ci_high": 0.08621977430665517
+          }
+        },
+        "history_1_5": {
+          "description": "1 to 5 known History items",
+          "n_impressions": 4411,
+          "means": {
+            "random": 0.29263024776661317,
+            "popularity": 0.3080180476529109,
+            "category_affinity": 0.33847982473976884,
+            "tfidf": 0.3431807057399709
+          },
+          "gap": {
+            "mean": 0.004700881000202051,
+            "ci_low": -0.004139173619678496,
+            "ci_high": 0.013204447020240505
+          },
+          "popularity_minus_random": {
+            "mean": 0.015387799886297737,
+            "ci_low": 0.0063880515744275555,
+            "ci_high": 0.023691393762900078
+          }
+        },
+        "top_category_0_33": {
+          "description": "6+ known items; top-category share in [0%, 33%)",
+          "n_impressions": 9921,
+          "means": {
+            "random": 0.24963867736087114,
+            "popularity": 0.26081219186315024,
+            "category_affinity": 0.3127192632260121,
+            "tfidf": 0.3371877092616301
+          },
+          "gap": {
+            "mean": 0.024468446035617986,
+            "ci_low": 0.018072775489813613,
+            "ci_high": 0.030182632923075194
+          },
+          "popularity_minus_random": {
+            "mean": 0.011173514502279103,
+            "ci_low": 0.005728257220648141,
+            "ci_high": 0.016882121328450524
+          }
+        },
+        "top_category_33_50": {
+          "description": "6+ known items; top-category share in [33%, 50%)",
+          "n_impressions": 9570,
+          "means": {
+            "random": 0.26401845741537655,
+            "popularity": 0.27433985890686546,
+            "category_affinity": 0.34529297791904046,
+            "tfidf": 0.3598412718206174
+          },
+          "gap": {
+            "mean": 0.01454829390157697,
+            "ci_low": 0.008144288307051547,
+            "ci_high": 0.019716276828044693
+          },
+          "popularity_minus_random": {
+            "mean": 0.010321401491488913,
+            "ci_low": 0.003525863551548704,
+            "ci_high": 0.016861942865485882
+          }
+        },
+        "top_category_50_67": {
+          "description": "6+ known items; top-category share in [50%, 67%)",
+          "n_impressions": 4323,
+          "means": {
+            "random": 0.25809608624506736,
+            "popularity": 0.2767690304484469,
+            "category_affinity": 0.367500786374375,
+            "tfidf": 0.37637168183081515
+          },
+          "gap": {
+            "mean": 0.008870895456440153,
+            "ci_low": 0.0013980543819406808,
+            "ci_high": 0.01794407788903183
+          },
+          "popularity_minus_random": {
+            "mean": 0.01867294420337956,
+            "ci_low": 0.008912580326803813,
+            "ci_high": 0.02830499105307044
+          }
+        },
+        "top_category_67_100": {
+          "description": "6+ known items; top-category share in [67%, 100%]",
+          "n_impressions": 1273,
+          "means": {
+            "random": 0.2505028747241173,
+            "popularity": 0.27749483331057867,
+            "category_affinity": 0.3989200562606215,
+            "tfidf": 0.3873584519716522
+          },
+          "gap": {
+            "mean": -0.011561604288969296,
+            "ci_low": -0.028583512212747707,
+            "ci_high": 0.004104370296027233
+          },
+          "popularity_minus_random": {
+            "mean": 0.026991958586461362,
+            "ci_low": 0.010907469203119385,
+            "ci_high": 0.04397111119343687
+          }
+        }
+      },
+      "coverage": {
+        "n_impressions": 30270,
+        "n_users": 20179,
+        "n_statistics_impressions": 62813,
+        "candidates_per_impression": 40.38417575156921,
+        "share_impressions_user_in_statistics": 0.6811694747274529,
+        "share_users_in_statistics": 0.6279300262649289,
+        "share_impressions_no_known_history": 0.02550379914106376,
+        "share_history_items_unknown": 0.0,
+        "share_candidates_unseen_as_candidate": 0.31645273467825125,
+        "share_candidates_unclicked_before": 0.6291220185385,
+        "share_candidates_outside_tfidf_corpus": 0.3100679057843032,
+        "share_candidates_zero_tfidf_vector": 0.0,
+        "tfidf_vocabulary_size": 30162
+      },
+      "ties": {
+        "popularity": {
+          "n_impressions": 30270,
+          "share_pairs_tied": 0.06444981914426375,
+          "share_clicks_tied_with_a_non_click": 0.5184410037373198
+        },
+        "category_affinity": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.2370512723630258,
+          "share_clicks_tied_with_a_non_click": 0.8309590602261769
+        },
+        "tfidf": {
+          "n_impressions": 29498,
+          "share_pairs_tied": 0.10063058659587455,
+          "share_clicks_tied_with_a_non_click": 0.15874024721662136
+        }
+      }
+    }
+  },
+  "verdicts": {
+    "available": true,
+    "tune_gap": 0.013713971011873993,
+    "holdout_gap": -0.02673116863006003,
+    "swing": -0.040445139641934025,
+    "corpus_size": {
+      "predicted_change": -0.001198730942767956,
+      "fraction_of_swing": 0.029638442427952376,
+      "label": "minor",
+      "n_runs": 7
+    },
+    "history_length_mix": {
+      "predicted_change": -0.00017479527582639834,
+      "fraction_of_swing": 0.004321786928513122,
+      "label": "minor",
+      "reweighted_gap": 0.013539175736047595
+    },
+    "returning_vs_new": {
+      "predicted_change": -0.001667259063091623,
+      "fraction_of_swing": 0.04122272979774776,
+      "label": "minor",
+      "reweighted_gap": 0.01204671194878237
+    }
+  }
+}

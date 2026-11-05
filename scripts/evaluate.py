@@ -56,8 +56,10 @@ def main(argv: list[str] | None = None) -> int:
     config = load_config(args.config)
     if args.render_only:
         if not (config.results_dir / "experiments.json").exists():
-            print(f"No {config.results_dir / 'experiments.json'}; run without --render-only.",
-                  file=sys.stderr)
+            print(
+                f"No {config.results_dir / 'experiments.json'}; run without --render-only.",
+                file=sys.stderr,
+            )
             return 1
         for path in render_outputs(config):
             print(f"wrote {path}")

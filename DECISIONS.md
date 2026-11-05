@@ -267,3 +267,28 @@ Together with D-021's day-by-day gaps, the first count is what made returning vs
   - "partial" means 25–50%
   - "minor" means < 25%
 - These are descriptive point estimates, not tests. The new-user reweighting treats a user-level share as an impression-level share, and assumes holdout's new users behave like tune's. Neither assumption can be checked without reading dev.
+
+## D-024 Baseline diagnostics findings (train only; holdout used descriptively)
+Source: `results/baseline_diagnostics.json` and `reports/baseline_diagnostics.md`, generated at `caae6bd` from a clean tree. A second run reproduced all 2,656 compared values exactly. D-023 was committed before either run. The interpretation is in `reports/reversal_memo.md`.
+
+**Verdicts (D-023 rule).** The tune gap is +0.0137 and the holdout gap −0.0267, a swing of −0.0404. Each explanation's share of it:
+
+| Explanation | Share of swing | Verdict |
+|---|---|---|
+| Corpus size (tune targets fixed; 25% subsample to all, and 1 to 5 trailing days) | 3% | minor |
+| History-length mix | 0% | minor |
+| Returning vs new users (my post-hoc hypothesis) | 4% | minor |
+
+- **The returning-users hypothesis is not supported.** Within each train day, returning and new users show nearly the same gap.
+- **The scored day drives the gap.** With a one-day statistics window, the gap by day is −0.0063, −0.0123, +0.0038 and +0.0125, nearly the same as with all earlier data. It shifts together within every History-length bucket with History, both returning and new users, and every concentration bucket except the smallest, most concentrated one.
+- **Holdout's −0.0267 lies outside the train-day range,** but has the same sign as 11-11 and 11-12.
+
+**Other findings.**
+- **`category_affinity` ties.** 80–83% of clicked candidates share their primary score with an unclicked candidate, so the popularity tie-break orders them. For `tfidf` it is 15–17%.
+- **Concentration (tune).** `tfidf` minus `category_affinity` falls as History concentration rises: +0.024, +0.014 and +0.008, then −0.012 (CI includes 0) for a top category above two thirds. The order of the lower three buckets holds on all four train days.
+- **Coverage.** No candidate has an empty TF-IDF vector. 21–29% of candidates fall outside the TF-IDF fitting corpus. 54–60% were never clicked in the statistics source.
+- **Not pre-registered.** Mean list length (35.6 to 40.4) is higher on the two days that favored `tfidf`. That's four points, a lead for follow-up E1.
+
+**Consequences.**
+- The user-bootstrap intervals ignore day-to-day variation, which is the dominant uncertainty here. Model comparisons must report consistency across days (D-022).
+- The memo proposes E1 (within-category discrimination) and E2 (a leave-one-day-out hybrid with one pre-specified concentration interaction), plus a fresh confirmatory protocol. MIND-small dev results from now on are labeled exploratory.
