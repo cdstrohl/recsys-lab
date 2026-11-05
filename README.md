@@ -54,7 +54,12 @@ uv run python scripts/evaluate.py --config configs/baseline.yaml --lock-manifest
 uv run python scripts/evaluate.py --config configs/baseline.yaml
 # development only: tune split, no manifest needed
 uv run python scripts/evaluate.py --config configs/baseline.yaml --splits tune
+# rebuild the figure and report from results/experiments.json (no data read, nothing re-scored)
+uv run python scripts/evaluate.py --config configs/baseline.yaml --render-only
 ```
+
+Use `--render-only` after editing `reports/interpretation.md`. It leaves the JSON results,
+including the holdout numbers, untouched.
 
 A holdout run stops if `eval/manifest.json` doesn't match the data files. To try the
 pipeline without MIND, run it on the synthetic fixtures. The outputs are labeled
@@ -101,6 +106,26 @@ tests ablation variants on the tune protocol. It writes
 [reports/tune_diagnostics.md](reports/tune_diagnostics.md). The decision rules are
 recorded in DECISIONS.md D-020, and the findings in D-021.
 
+### Baseline diagnostics and the tune/holdout reversal
+
+```bash
+uv run python scripts/baseline_diagnostics.py --config configs/baseline_diagnostics.yaml
+```
+
+This also reads `MINDsmall_train` only. Holdout numbers come from the committed
+`results/experiments.json`, used as a descriptive reference, and are never re-scored.
+It reports:
+- train/tune data coverage and score-tie profiles
+- History-length and History-concentration segments
+- returning vs new users
+- a fixed-target corpus-size experiment (trailing windows and random subsamples)
+- how much of the reversal each explanation can account for
+
+Outputs are `results/baseline_diagnostics.json` and
+[reports/baseline_diagnostics.md](reports/baseline_diagnostics.md). Rules are in D-023,
+findings in D-024, and the follow-up proposal in
+[reports/reversal_memo.md](reports/reversal_memo.md).
+
 ## Evaluation design
 
 **Splits**
@@ -145,11 +170,11 @@ Conventions and their consequences are recorded in [DECISIONS.md](DECISIONS.md).
 
 ```
 src/recsys/   schemas, loaders, inventory, splits, metrics, rankers, evaluate
-scripts/      inspect_data.py, evaluate.py
-configs/      baseline.yaml (real data), synthetic.yaml (fixtures)
+scripts/      inspect_data.py, evaluate.py, diagnose.py, baseline_diagnostics.py
+configs/      baseline.yaml (real data), synthetic.yaml (fixtures), diagnostics configs
 eval/         manifest.json, locked before the first holdout run
 results/      experiments.json, summary.json, figures/ (generated)
-reports/      baseline_results.md (generated), interpretation.md (hand-written)
+reports/      generated reports; interpretation.md and reversal_memo.md are hand-written
 tests/        unit tests + synthetic fixtures
 data/         README only; data/raw/ is gitignored
 ```
