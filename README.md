@@ -5,7 +5,7 @@
 category affinity, TF-IDF) are evaluated on the provided MIND-small candidate sets.
 Results are in [reports/baseline_results.md](reports/baseline_results.md) and
 `results/`, including a figure of nDCG@10 by History length and labeled sports slices.
-Stronger models (collaborative filtering, a hybrid) are still to come.
+A leave-one-day-out hybrid has development results on train days (no holdout run yet).
 
 The question: which ranking approach is worth shipping for a news feed, across
 cold-start and history-rich users, once quality, complexity and inference cost are
@@ -126,6 +126,20 @@ Outputs are `results/baseline_diagnostics.json` and
 findings in D-024, and the follow-up proposal in
 [reports/reversal_memo.md](reports/reversal_memo.md).
 
+### E2: leave-one-day-out hybrid (development only)
+
+```bash
+uv run python scripts/hybrid_development.py --config configs/hybrid.yaml
+```
+
+This fits a logistic-regression hybrid over out-of-time base-ranker scores on four train
+days (11-11 to 11-14). For each day, the base rankers see only earlier data, and the
+weights are fitted on the other days. No holdout data is loaded or scored. Outputs are
+`results/hybrid_development.json`, which includes the frozen weights, and
+[reports/hybrid_development.md](reports/hybrid_development.md). The protocol is in
+DECISIONS.md D-022 and D-025, the findings in D-026. These are development results, not
+holdout results.
+
 ## Evaluation design
 
 **Splits**
@@ -169,8 +183,8 @@ Conventions and their consequences are recorded in [DECISIONS.md](DECISIONS.md).
 ## Layout
 
 ```
-src/recsys/   schemas, loaders, inventory, splits, metrics, rankers, evaluate
-scripts/      inspect_data.py, evaluate.py, diagnose.py, baseline_diagnostics.py
+src/recsys/   schemas, loaders, inventory, splits, metrics, rankers, evaluate, diagnostics, hybrid
+scripts/      inspect_data.py, evaluate.py, diagnose.py, baseline_diagnostics.py, hybrid_development.py
 configs/      baseline.yaml (real data), synthetic.yaml (fixtures), diagnostics configs
 eval/         manifest.json, locked before the first holdout run
 results/      experiments.json, summary.json, figures/ (generated)

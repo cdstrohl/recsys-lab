@@ -333,3 +333,32 @@ A main effect for concentration would be a per-user constant, which can't change
 The pooled bootstrap resamples users across all four days. Relative improvement against `category_affinity` is reported next to the spec's ≥ 5% holdout target, but development results aren't holdout results.
 
 **Frozen weights.** Weights fitted on all four days are saved in `results/hybrid_development.json` for a later holdout step. That step needs owner approval and follows D-022: exploratory on MIND-small dev, confirmatory only on fresh data.
+
+## D-026 E2 development findings (train only; no holdout scored)
+Source: `results/hybrid_development.json` and `reports/hybrid_development.md`, generated at `a73d98f` from a clean tree, where D-025 was committed. On each day, the live hybrid scores match the cached features the weights were fitted on. The base rankers' 11-14 numbers equal the official tune run.
+
+**Success rule (D-025).** Pooled across the four held-out days:
+
+| Model | Days beating both rivals | Pooled Δ vs `category_affinity` [95% CI] | Relative |
+|---|---|---|---|
+| `hybrid` (primary, pre-specified) | 4 of 4 | +0.0153 [+0.0140, +0.0167] | +4.1% |
+| `hybrid_no_interaction` | 4 of 4 | +0.0157 [+0.0144, +0.0171] | +4.2% |
+| `hybrid_full` | 4 of 4 | +0.0236 [+0.0223, +0.0250] | +6.3% |
+
+All three meet the success rule. Forward chaining agrees: `hybrid` beats both rivals on 11-12, 11-13 and 11-14. The result doesn't depend on C: 0.01 to 100 change nDCG@10 by at most 0.0001.
+
+**Failure modes and unexpected behavior.**
+- **The pre-specified interaction adds nothing.** `tfidf_x_concentration` gets a stable negative weight (about −0.15 in every fold), which fits D-024's finding 6. But `hybrid_no_interaction` is as good or slightly better. The concentration effect is already captured by `affinity` and `tfidf` together.
+- **Gains are uneven across days.** Against `category_affinity`, the hybrid gains +0.005 on 11-11 and 11-12 (days that favor `category_affinity`) but +0.025 to +0.027 on 11-13 and 11-14. It mostly tracks whichever content ranker is better that day. The holdout day favored `category_affinity`, so a gain near the small end is plausible there. That would be about 1–2% relative, below the spec's 5% target. This is an extrapolation, not a measurement.
+- **Popularity gets little weight in `hybrid`.** `pop_item` drifts from −0.07 to +0.01 across folds, and `pop_category` is negative. Cumulative as-of popularity adds little once the content scores are in. Recent popularity does help: `pop_24h` raises the hybrid on all four days.
+- **`hybrid_full` is optimistic and hard to interpret.**
+  - All four optional groups passed the inclusion rule. The rule was evaluated on the same held-out days that report `hybrid_full`, so its development numbers carry selection optimism. The primary `hybrid` has no such step.
+  - Its weights are collinear: popularity windows at −0.35, +0.54 and −0.19, and `affinity` drops to +0.04 because `affinity_aug` takes over. Individual weights can't be read as importances.
+  - It is also the only hybrid that helps zero-History users: +0.031 [+0.022, +0.040] through augmentation, with fallbacks down from 2,849 to 1,136 pooled impressions.
+- **The latency comparison in the run is unreliable.** `hybrid` shows a p95 of 0.7–1.1 ms against 0.2–0.3 ms for `hybrid_no_interaction`. An isolated re-timing on 6,000 tune requests gave the same feature cost for both, about 0.24 ms at p95. Treat the run's p95 columns for prebuilt rankers as rough. The p50s, about 0.1–0.3 ms, agree with the re-timing.
+
+**Next decision for the owner.** Two things remain:
+- A holdout step needs approval. Under D-022 it is *exploratory* on MIND-small dev. The comparison to freeze first: `hybrid` (primary), with `hybrid_full` and `hybrid_no_interaction` as secondary.
+- *Confirmatory* testing needs fresh data, per the memo.
+
+The frozen all-days weights for both hybrids are in the results JSON.
