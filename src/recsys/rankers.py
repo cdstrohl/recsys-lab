@@ -241,19 +241,39 @@ class CategoryAffinityRanker(_Personalized):
         self.name = name
         self._news = news
 
-    def score(self, request: RankRequest) -> Ranking:
-        profile = [self._news[h] for h in self._history(request) if h in self._news]
+    def profile(self, request: RankRequest) -> list[NewsItem]:
+        """The known items of the (possibly augmented) History."""
+        return [self._news[h] for h in self._history(request) if h in self._news]
+
+    def affinity(self, request: RankRequest) -> FloatArray | None:
+        """#same category + #same subcategory per candidate; None without known History."""
+        profile = self.profile(request)
         if not profile:
-            return self._fallback(request)
+            return None
         categories = Counter(item.category for item in profile)
         subcategories = Counter((item.category, item.subcategory) for item in profile)
-        affinity = [
-            categories[item.category] + subcategories[(item.category, item.subcategory)]
-            if (item := self._news.get(n)) is not None
-            else 0
-            for n in request.candidate_ids
-        ]
+        return np.array(
+            [
+                categories[item.category] + subcategories[(item.category, item.subcategory)]
+                if (item := self._news.get(n)) is not None
+                else 0
+                for n in request.candidate_ids
+            ],
+            dtype=np.float64,
+        )
+
+    def score(self, request: RankRequest) -> Ranking:
+        affinity = self.affinity(request)
+        if affinity is None:
+            return self._fallback(request)
         return self._rank(request, affinity)
+
+
+def top_category_share(profile: Sequence[NewsItem]) -> float | None:
+    """Share of the profile in its most common category; None for an empty profile."""
+    if not profile:
+        return None
+    return Counter(item.category for item in profile).most_common(1)[0][1] / len(profile)
 
 
 def news_text(item: NewsItem) -> str:
@@ -329,16 +349,23 @@ class TfidfRanker(_Personalized):
     def vocabulary_size(self) -> int:
         return len(self._index.vectorizer.vocabulary_)
 
-    def score(self, request: RankRequest) -> Ranking:
+    def similarity(self, request: RankRequest) -> FloatArray | None:
+        """Cosine per candidate; None when the user vector would be zero."""
         user = self._index.user_vector(self._history(request))
         if user is None:
-            return self._fallback(request)
+            return None
         row = self._index.row
         similarity = np.zeros(len(request.candidate_ids))
         known = [i for i, n in enumerate(request.candidate_ids) if n in row]
         if known:
             rows = [row[request.candidate_ids[i]] for i in known]
             similarity[known] = self._index.matrix[rows] @ user
+        return similarity
+
+    def score(self, request: RankRequest) -> Ranking:
+        similarity = self.similarity(request)
+        if similarity is None:
+            return self._fallback(request)
         return self._rank(request, similarity)
 
 

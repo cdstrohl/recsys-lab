@@ -1,0 +1,33 @@
+# E2 development: leave-one-day-out hybrid (D-022, D-025). Reads MINDsmall_train only.
+# Run: uv run python scripts/hybrid_development.py --config configs/hybrid.yaml
+data_dir: data/raw
+data_provenance: real_licensed
+seed: 13
+splits: [tune]
+ks: [5, 10]
+history_edges: [0, 1, 6, 21, 51]
+baseline: popularity
+compare_to: [category_affinity, tfidf]   # rivals; the first is the primary comparison
+bootstrap_samples: 500
+coverage_k: 10
+models:
+  - name: random
+  - name: popularity
+  - {name: popularity_24h, ranker: popularity, params: {window_hours: 24}}
+  - {name: popularity_48h, ranker: popularity, params: {window_hours: 48}}   # kept per D-022
+  - name: category_affinity
+  - {name: category_affinity_aug, ranker: category_affinity, params: {augment_history: true}}
+  - {name: category_affinity_pop24h, ranker: category_affinity, params: {popularity_window_hours: 24}}
+  - name: tfidf
+    params: &tfidf {stop_words: english, sublinear_tf: true, min_df: 2}
+  - name: tfidf_aug
+    ranker: tfidf
+    params: {<<: *tfidf, augment_history: true}
+hybrid:
+  days: [2019-11-11, 2019-11-12, 2019-11-13, 2019-11-14]
+  C: 1.0                      # fixed in advance; not tuned (D-025)
+  sensitivity_C: [0.01, 100]  # reported only
+  tfidf_model: tfidf          # the TF-IDF features use this model's vectorizer params
+  outputs:
+    results: results/hybrid_development.json
+    report: reports/hybrid_development.md

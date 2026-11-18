@@ -292,3 +292,44 @@ Source: `results/baseline_diagnostics.json` and `reports/baseline_diagnostics.md
 **Consequences.**
 - The user-bootstrap intervals ignore day-to-day variation, which is the dominant uncertainty here. Model comparisons must report consistency across days (D-022).
 - The memo proposes E1 (within-category discrimination) and E2 (a leave-one-day-out hybrid with one pre-specified concentration interaction), plus a fresh confirmatory protocol. MIND-small dev results from now on are labeled exploratory.
+
+## D-025 E2 development protocol (fixed before the real-data run, 2026-11-18)
+This implements D-022 and the memo's E2. `scripts/hybrid_development.py` reads `MINDsmall_train` only. No holdout data is loaded or scored in this step.
+
+**Folds** follow the D-022 table: development days 11-11 to 11-14, each scored by base rankers fitted on train before it.
+- **Primary: leave one day out.** The weights that score day D are fitted on the other three days' rows.
+  - Caveat: those days include later ones, and their features were built from statistics that contain D's clicks. D's labels never reach D's own features or weights directly.
+- **Secondary check: forward chaining.** Weights fitted on earlier days only, scoring 11-12 to 11-14. It's reported, not used to decide anything.
+
+**Model.**
+- Logistic regression (L2, lbfgs) over candidate rows of non-fallback impressions, with each feature standardized on its training rows.
+- Ranking uses the linear score.
+- C is fixed at 1.0 in advance and not tuned. With millions of rows, L2 strength barely matters. C = 0.01 and 100 are reported as a sensitivity check only.
+- The hybrid falls back to the popularity order, flagged, when none of its personalized features is available.
+
+**Features.** All come from a label-free request.
+
+| Feature | Definition |
+|---|---|
+| `pop_item`, `pop_category` | log1p as-of clicks on the item and on its category |
+| `affinity` | (same-category + same-subcategory History count) / known History length |
+| `tfidf` | cosine similarity |
+| `tfidf_x_concentration` | `tfidf` × top-category share of the History, pre-specified from D-024 |
+
+A main effect for concentration would be a per-user constant, which can't change a within-impression order, so concentration enters only through the interaction.
+
+**Models compared.**
+- `hybrid`: the primary model, using the features above.
+- `hybrid_no_interaction`: an ablation without `tfidf_x_concentration`.
+- `hybrid_full`: `hybrid` plus the optional groups that pass the inclusion rule. It isn't built if no group passes.
+- Every base ranker and D-021 candidate as a named model, including `popularity_48h` (D-022).
+
+**Inclusion rule for optional groups.** The groups are `pop_24h`, `pop_48h`, `affinity_aug` and `tfidf_aug`. `category_affinity_pop24h` adds no new signal beyond `pop_24h`. Each group is added alone to `hybrid` and kept iff its leave-one-day-out nDCG@10 is higher on at least three of the four days. This is a point-estimate rule on development data, applied once.
+
+**Success rule (memo E2).** A model succeeds only if both hold:
+- it beats both `category_affinity` and `tfidf` on at least three of four held-out days
+- its pooled paired nDCG@10 interval against `category_affinity` is above 0
+
+The pooled bootstrap resamples users across all four days. Relative improvement against `category_affinity` is reported next to the spec's ≥ 5% holdout target, but development results aren't holdout results.
+
+**Frozen weights.** Weights fitted on all four days are saved in `results/hybrid_development.json` for a later holdout step. That step needs owner approval and follows D-022: exploratory on MIND-small dev, confirmatory only on fresh data.

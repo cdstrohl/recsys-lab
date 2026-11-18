@@ -35,7 +35,7 @@ from recsys.figures import history_figure
 from recsys.inventory import history_bucket, read_provenance, unseen_inventory
 from recsys.loaders import BEHAVIORS_FILE, DEV_DIR, NEWS_FILE, TRAIN_DIR, load_mind_dir
 from recsys.metrics import MetricSummary, evaluate, metric_names, rank_order, tie_break_keys
-from recsys.rankers import RankRequest, build_rankers
+from recsys.rankers import Ranker, RankRequest, build_rankers
 from recsys.schemas import Impression, NewsItem
 from recsys.splits import Split, SplitAssignment, assign_splits
 
@@ -269,13 +269,19 @@ def _score_all(
     stats: Sequence[Impression],
     news: Mapping[str, NewsItem],
     config: EvalConfig,
+    extra_rankers: Sequence[Ranker] = (),
 ) -> tuple[list[ModelRun], float]:
-    """Fit every model on `stats`, score label-free requests, then compute metrics."""
+    """Fit every model on `stats`, score label-free requests, then compute metrics.
+
+    `extra_rankers` are already fitted (on `stats` or earlier data, never on the
+    scored impressions) and are scored after the configured models.
+    """
     requests = [RankRequest.from_impression(imp) for imp in impressions]
     start = time.perf_counter()
     specs = [(m.name, m.kind, m.params) for m in config.models]
     rankers = build_rankers(specs, stats, news, seed=config.seed)
     fit_seconds = time.perf_counter() - start
+    rankers.extend(extra_rankers)
     runs = []
     for ranker in rankers:
         scores, fallback, latencies = [], [], []
@@ -404,13 +410,31 @@ def evaluate_split(
     config: EvalConfig,
     *,
     extra_slices: Mapping[str, tuple[str, list[int]]] | None = None,
+    extra_rankers: Sequence[Ranker] = (),
 ) -> dict[str, Any]:
     """Every model on one split: overall metrics, segments by history length, costs.
 
     `extra_slices` adds named impression subsets (description, row indices) to the
-    configured category slices.
+    configured category slices; `extra_rankers` adds prebuilt models (see `_score_all`).
     """
-    runs, fit_seconds = _score_all(impressions, stats, news, config)
+    runs, fit_seconds = _score_all(impressions, stats, news, config, extra_rankers)
+    return summarize_runs(
+        split, impressions, runs, stats, stats_label, news, config, fit_seconds, extra_slices
+    )
+
+
+def summarize_runs(
+    split: str,
+    impressions: Sequence[Impression],
+    runs: Sequence[ModelRun],
+    stats: Sequence[Impression],
+    stats_label: str,
+    news: Mapping[str, NewsItem],
+    config: EvalConfig,
+    fit_seconds: float | None,
+    extra_slices: Mapping[str, tuple[str, list[int]]] | None = None,
+) -> dict[str, Any]:
+    """The split summary for already-scored runs (see `evaluate_split`)."""
     users = sorted({imp.user_id for imp in impressions})
     user_pos = {u: i for i, u in enumerate(users)}
     user_index = np.array([user_pos[imp.user_id] for imp in impressions], dtype=np.int64)

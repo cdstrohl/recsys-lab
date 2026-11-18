@@ -24,7 +24,6 @@ from __future__ import annotations
 import dataclasses
 import hashlib
 import json
-from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, time, timedelta
@@ -47,6 +46,7 @@ from recsys.rankers import (
     TfidfIndex,
     TfidfRanker,
     tfidf_corpus,
+    top_category_share,
 )
 from recsys.schemas import Impression, NewsItem
 from recsys.splits import assign_splits
@@ -173,7 +173,7 @@ def concentration_slices(
         elif len(categories) < min_history:
             slices[f"history_1_{min_history - 1}"][1].append(i)
         else:
-            share = Counter(categories).most_common(1)[0][1] / len(categories)
+            share = top_category_share([news[h] for h in imp.history if h in news]) or 0.0
             bucket = next(b for b, high in enumerate(bounds[1:]) if share < high or high == 1.0)
             slices[names[bucket]][1].append(i)
     return slices
