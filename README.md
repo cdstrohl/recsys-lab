@@ -200,4 +200,4 @@ data/         README only; data/raw/ is gitignored
 - Offline ranking metrics don't predict online engagement.
 - Labels reflect what Microsoft News's own 2019 system chose to show (exposure bias).
 - Holdout popularity uses train clicks only, so it's up to a day stale, and items first shown in dev have no click history.
-- Rankers are simple, fixed-parameter baselines. Nothing was tuned.
+- Base rankers are simple, fixed-parameter baselines. Only the hybrid's weights are fitted, on train days only (D-025).
