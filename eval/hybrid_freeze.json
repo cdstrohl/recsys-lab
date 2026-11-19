@@ -1,0 +1,232 @@
+{
+  "project": "recsys-lab",
+  "kind": "hybrid_freeze",
+  "label": "exploratory holdout",
+  "generated_at": "2026-11-19T02:57:24+00:00",
+  "git_sha": "f3f310c",
+  "git_dirty": false,
+  "reproduce": "uv run python scripts/hybrid_holdout.py --config configs/hybrid_holdout.yaml --freeze",
+  "data_provenance": [
+    "real_licensed"
+  ],
+  "holdout_used": false,
+  "train_files": {
+    "MINDsmall_train/news.tsv": "cd49d7da275e9c405f627d75a0de9d4ec6ad43ff8a8db5d23a447591676e09d6",
+    "MINDsmall_train/behaviors.tsv": "a424547c8fa17c9ea4879c2110221c2b2f2709f4f7615ede0b0d8e4765158658"
+  },
+  "development_results_sha256": "2382c81870369716fdeb01d549693fea00767b1ea3ec100fe3526e5ba5c31eaa",
+  "weights_fitted_on": [
+    "2019-11-11",
+    "2019-11-12",
+    "2019-11-13",
+    "2019-11-14"
+  ],
+  "statistics_at_evaluation": "fit+tune (all MINDsmall_train), D-013 / D-022",
+  "tfidf_params": {
+    "stop_words": "english",
+    "sublinear_tf": true,
+    "min_df": 2
+  },
+  "base_models": {
+    "random": {
+      "ranker": "random",
+      "params": {}
+    },
+    "popularity": {
+      "ranker": "popularity",
+      "params": {}
+    },
+    "popularity_24h": {
+      "ranker": "popularity",
+      "params": {
+        "window_hours": 24
+      }
+    },
+    "popularity_48h": {
+      "ranker": "popularity",
+      "params": {
+        "window_hours": 48
+      }
+    },
+    "category_affinity": {
+      "ranker": "category_affinity",
+      "params": {}
+    },
+    "category_affinity_aug": {
+      "ranker": "category_affinity",
+      "params": {
+        "augment_history": true
+      }
+    },
+    "category_affinity_pop24h": {
+      "ranker": "category_affinity",
+      "params": {
+        "popularity_window_hours": 24
+      }
+    },
+    "tfidf": {
+      "ranker": "tfidf",
+      "params": {
+        "stop_words": "english",
+        "sublinear_tf": true,
+        "min_df": 2
+      }
+    },
+    "tfidf_aug": {
+      "ranker": "tfidf",
+      "params": {
+        "stop_words": "english",
+        "sublinear_tf": true,
+        "min_df": 2,
+        "augment_history": true
+      }
+    }
+  },
+  "weights": {
+    "hybrid": {
+      "columns": [
+        "pop_item",
+        "pop_category",
+        "affinity",
+        "tfidf",
+        "tfidf_x_concentration"
+      ],
+      "C": 1.0,
+      "n_rows": 4692891,
+      "intercept": -3.234190804255205,
+      "standardized_coef": {
+        "pop_item": -0.024760123963909794,
+        "pop_category": -0.052125703234269356,
+        "affinity": 0.2694493198957845,
+        "tfidf": 0.32669643683729294,
+        "tfidf_x_concentration": -0.15257268236062008
+      },
+      "mean": {
+        "pop_item": 1.2672576864152396,
+        "pop_category": 9.095568684647771,
+        "affinity": 0.19206934056992073,
+        "tfidf": 0.022959281301593474,
+        "tfidf_x_concentration": 0.009139154930504835
+      },
+      "scale": {
+        "pop_item": 1.795972643548311,
+        "pop_category": 1.0812208069830138,
+        "affinity": 0.2436901976274937,
+        "tfidf": 0.029539082922598877,
+        "tfidf_x_concentration": 0.014699429760101674
+      }
+    },
+    "hybrid_no_interaction": {
+      "columns": [
+        "pop_item",
+        "pop_category",
+        "affinity",
+        "tfidf"
+      ],
+      "C": 1.0,
+      "n_rows": 4692891,
+      "intercept": -3.2252241953687495,
+      "standardized_coef": {
+        "pop_item": -0.021557827468482352,
+        "pop_category": -0.04897202442411445,
+        "affinity": 0.23778119612396365,
+        "tfidf": 0.1874988324045532
+      },
+      "mean": {
+        "pop_item": 1.2672576864152396,
+        "pop_category": 9.095568684647771,
+        "affinity": 0.19206934056992073,
+        "tfidf": 0.022959281301593474
+      },
+      "scale": {
+        "pop_item": 1.795972643548311,
+        "pop_category": 1.0812208069830138,
+        "affinity": 0.2436901976274937,
+        "tfidf": 0.029539082922598877
+      }
+    },
+    "hybrid_full": {
+      "columns": [
+        "pop_item",
+        "pop_category",
+        "affinity",
+        "tfidf",
+        "tfidf_x_concentration",
+        "pop24_item",
+        "pop24_category",
+        "pop48_item",
+        "pop48_category",
+        "affinity_aug",
+        "tfidf_aug"
+      ],
+      "C": 1.0,
+      "n_rows": 4757791,
+      "intercept": -3.250496003690606,
+      "standardized_coef": {
+        "pop_item": -0.3503999865837944,
+        "pop_category": -0.032069101461535326,
+        "affinity": 0.035804312359020214,
+        "tfidf": 0.23668564811507475,
+        "tfidf_x_concentration": -0.15092083438404363,
+        "pop24_item": 0.5435226212849451,
+        "pop24_category": -0.05337590240926205,
+        "pop48_item": -0.19252201206221042,
+        "pop48_category": -0.019537364137197692,
+        "affinity_aug": 0.24275937909113282,
+        "tfidf_aug": 0.10168956190160303
+      },
+      "mean": {
+        "pop_item": 1.2674999374665195,
+        "pop_category": 9.098662909422059,
+        "affinity": 0.18944936415586894,
+        "tfidf": 0.02264609870141759,
+        "tfidf_x_concentration": 0.009014489690903146,
+        "pop24_item": 0.9916267142947786,
+        "pop24_category": 7.182280269391003,
+        "pop48_item": 1.1833715542035737,
+        "pop48_category": 8.516389468315726,
+        "affinity_aug": 0.1922273811648777,
+        "tfidf_aug": 0.02418958564469554
+      },
+      "scale": {
+        "pop_item": 1.7961595055116428,
+        "pop_category": 1.0805701551472264,
+        "affinity": 0.24304569223534858,
+        "tfidf": 0.02945755279331958,
+        "tfidf_x_concentration": 0.01463726820240832,
+        "pop24_item": 1.5354108150654326,
+        "pop24_category": 1.394076788829855,
+        "pop48_item": 1.7251996709558344,
+        "pop48_category": 1.0249144921964977,
+        "affinity_aug": 0.2392359305561121,
+        "tfidf_aug": 0.0310686567521145
+      }
+    }
+  },
+  "plan": {
+    "metric": "ndcg@10",
+    "primary": {
+      "model": "hybrid",
+      "versus": "category_affinity",
+      "target_relative": 0.05
+    },
+    "secondary": [
+      "hybrid_no_interaction",
+      "hybrid_full"
+    ],
+    "rivals": [
+      "category_affinity",
+      "tfidf"
+    ],
+    "seed": 13,
+    "bootstrap_samples": 1000,
+    "slice_category": "sports",
+    "history_edges": [
+      0,
+      1,
+      6,
+      21,
+      51
+    ]
+  }
+}
