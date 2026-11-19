@@ -362,3 +362,35 @@ All three meet the success rule. Forward chaining agrees: `hybrid` beats both ri
 - *Confirmatory* testing needs fresh data, per the memo.
 
 The frozen all-days weights for both hybrids are in the results JSON.
+
+## D-027 E2 exploratory holdout: what is frozen before scoring (owner-approved, 2026-11-18)
+The owner approved one *exploratory holdout* run of the E2 hybrids on MIND-small dev (D-022). Dev was already inspected (D-018, D-021), so this run is not confirmatory, and its numbers can't change any frozen decision. This entry, the code and `eval/hybrid_freeze.json` are committed before dev is scored. `scripts/hybrid_holdout.py` refuses to score unless the freeze file is committed and unchanged, and never overwrites a freeze.
+
+**Frozen (train only, `--freeze`):**
+- **Weights and standardization constants** for `hybrid`, `hybrid_no_interaction` and `hybrid_full`. Each is fitted on all four development days (11-11 to 11-14, D-025 folds) with C = 1.0.
+  - `hybrid` and `hybrid_full` must reproduce the weights stored in `results/hybrid_development.json` (D-026), or the freeze fails.
+  - `hybrid_no_interaction` wasn't stored there, so it's fitted the same way.
+  - `hybrid_full` keeps the four optional groups selected in D-026.
+- **The freeze also records:** the manifest's train file hashes (checked against disk), the TF-IDF parameters, the base model list (including `popularity_48h`, D-022), and the analysis plan below.
+
+**Evaluation conventions (unchanged).**
+- Base features come from all train (fit + tune), per D-013 and D-022. News metadata is merged as in D-013. Seed, tie-break, eligibility and metric definitions are unchanged.
+- The v1 manifest is verified and not edited.
+- `results/summary.json`, `results/experiments.json` and the v1 figures are not touched. The portfolio headline stays the v1 run unless the owner decides otherwise.
+- **Continuity check:** the base rankers `random`, `popularity`, `category_affinity` and `tfidf` must reproduce the v1 holdout means exactly. If they don't, the run isn't comparable and is reported as such.
+
+**Analysis plan.**
+- **Primary:** `hybrid` vs `category_affinity` on nDCG@10, paired, user-grouped bootstrap, 1,000 samples, seed 13. The reading is one of:
+  - *better, meets target*: interval above 0 and relative gain ≥ 5% (the spec's target)
+  - *better, below target*: interval above 0, relative gain < 5%
+  - *no clear difference*: interval includes 0
+  - *worse*: interval below 0
+- **Secondary (same readings):** `hybrid_no_interaction` and `hybrid_full` vs `category_affinity`, and each hybrid vs `tfidf`.
+- **Descriptive only:** history-length segments, `sports` slices, costs, and the development-vs-holdout comparison.
+
+**Expectations stated before scoring (from D-026 and D-024).**
+1. `hybrid` beats `category_affinity`, but below the 5% target, around 1–2% relative. The holdout day favored `category_affinity`, and on development days like that the gain was about +0.005.
+2. `hybrid_full`'s gain for zero-History users shrinks or disappears. 88% of holdout users are absent from train (D-011), so History augmentation rarely applies.
+3. `hybrid_full` is optimistic by construction (D-026). A larger holdout gain for it wouldn't settle whether its extra groups help.
+
+**Known limitation.** The standardization constants come from development features whose statistics covered two to five train days. At evaluation the statistics cover all six days, so cumulative popularity values are larger. Ranking within an impression isn't affected by a constant shift, but it is affected by scale. The cumulative popularity weights are near zero, so I expect only a small effect. The 24h and 48h windows have a fixed length and shift less.

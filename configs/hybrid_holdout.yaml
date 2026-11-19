@@ -1,0 +1,18 @@
+# E2 exploratory holdout (D-022, D-027). Fixed before the freeze; see DECISIONS.md.
+# 1. uv run python scripts/hybrid_holdout.py --config configs/hybrid_holdout.yaml --freeze
+# 2. uv run python scripts/hybrid_holdout.py --config configs/hybrid_holdout.yaml
+development_config: configs/hybrid.yaml   # base models, days, C, TF-IDF params, rivals
+bootstrap_samples: 1000                   # as the v1 holdout run
+slice_category: sports
+primary:
+  model: hybrid
+  versus: category_affinity
+  target_relative: 0.05                   # spec's >= 5% relative nDCG@10 target
+secondary: [hybrid_no_interaction, hybrid_full]
+manifest: eval/manifest.json              # v1, verified, never edited
+freeze: eval/hybrid_freeze.json
+development_results: results/hybrid_development.json
+reference: results/experiments.json       # v1 holdout run, for continuity
+outputs:
+  results: results/hybrid_exploratory_holdout.json
+  report: reports/hybrid_exploratory_holdout.md
