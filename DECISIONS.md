@@ -394,3 +394,28 @@ The owner approved one *exploratory holdout* run of the E2 hybrids on MIND-small
 3. `hybrid_full` is optimistic by construction (D-026). A larger holdout gain for it wouldn't settle whether its extra groups help.
 
 **Known limitation.** The standardization constants come from development features whose statistics covered two to five train days. At evaluation the statistics cover all six days, so cumulative popularity values are larger. Ranking within an impression isn't affected by a constant shift, but it is affected by scale. The cumulative popularity weights are near zero, so I expect only a small effect. The 24h and 48h windows have a fixed length and shift less.
+
+## D-028 E2 exploratory holdout findings (not confirmatory)
+Source: `results/hybrid_exploratory_holdout.json` and `reports/hybrid_exploratory_holdout.md`, generated at `ab900f9` from a clean tree. The weights and plan in `eval/hybrid_freeze.json` were frozen at `f3f310c` (D-027) and committed before scoring. The v1 manifest verified. The base rankers reproduce the v1 holdout means exactly. Nothing below can change a frozen decision.
+
+**Primary (pre-registered).** `hybrid` vs `category_affinity`, nDCG@10: +0.0045 [+0.0030, +0.0061], +1.2% relative. Reading: **better, below target** (the spec's target is 5%). This matches expectation 1 in D-027.
+
+**Secondary.**
+
+| Comparison | Δ nDCG@10 [95% CI] | Relative | Reading |
+|---|---|---|---|
+| `hybrid_no_interaction` - `category_affinity` | +0.0050 [+0.0034, +0.0066] | +1.3% | better, below target |
+| `hybrid_full` - `category_affinity` | +0.0108 [+0.0094, +0.0124] | +2.8% | better, below target |
+| `hybrid` - `tfidf` | +0.0312 [+0.0296, +0.0328] | +8.7% | better, meets target |
+
+**What the result says.**
+- **The hybrid generalizes as development predicted for a day that favors `category_affinity`.** Its holdout gain (+0.0045) is close to development days 11-11 and 11-12 (+0.0056, +0.0051), not to the pooled +0.0153. No hybrid reaches the 5% target against `category_affinity`. The day-to-day variation found in D-024 is still the main source of uncertainty.
+- **The pre-specified interaction again adds nothing.** `hybrid_no_interaction` is slightly ahead (+0.0005).
+- **`hybrid_full` is the best model on holdout,** but by less than in development (+2.8% vs +6.3% relative), and D-027 expectation 3 still applies: its extra groups were selected on the reporting days. Its zero-History gain shrinks from +0.031 to +0.0072 [+0.0021, +0.0117], and fallbacks only drop from 2,214 to 1,955. That matches expectation 2: most holdout users aren't in train, so augmentation rarely applies.
+
+**Failure modes.**
+- **Short-History users lose.** For 1–5 History items, `hybrid` is below `category_affinity` by -0.0102 [-0.0144, -0.0059]. This was already visible in development on the days that favored `category_affinity` (11-11: -0.0044, 11-12: -0.0069) but wasn't reported in D-026. Only `hybrid_full` avoids the loss (-0.0003 [-0.0040, +0.0036]). The gain is concentrated in long Histories (21+ items: +0.010 to +0.013).
+- **AUC is slightly lower.** `hybrid` has 0.6195 against 0.6223 for `category_affinity`, while its nDCG@5/10 and MRR are higher. The hybrid improves the top of the list, not the overall ordering. The weights were fitted with a pointwise loss and judged on nDCG, so this isn't contradictory, but a single-metric claim would hide it.
+- **`popularity_48h`** equals `popularity` on nDCG@10 (0.3136) and is below it on AUC. It stays in the comparison per D-022.
+
+**Next.** Per the memo and D-022, a claim about the hybrid needs a confirmatory run on unopened data, and that needs owner approval. Any model change motivated by the failure modes above, such as better handling of short Histories, is new development work on train days only. It would need a new freeze and could not be checked on MIND-small dev again.

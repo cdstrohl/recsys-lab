@@ -5,7 +5,9 @@
 category affinity, TF-IDF) are evaluated on the provided MIND-small candidate sets.
 Results are in [reports/baseline_results.md](reports/baseline_results.md) and
 `results/`, including a figure of nDCG@10 by History length and labeled sports slices.
-A leave-one-day-out hybrid has development results on train days (no holdout run yet).
+A leave-one-day-out hybrid has development results on train days and one *exploratory*
+holdout result with frozen weights (MIND-small dev was already inspected, so it isn't a
+confirmatory test).
 
 The question: which ranking approach is worth shipping for a news feed, across
 cold-start and history-rich users, once quality, complexity and inference cost are
@@ -140,6 +142,24 @@ weights are fitted on the other days. No holdout data is loaded or scored. Outpu
 DECISIONS.md D-022 and D-025, the findings in D-026. These are development results, not
 holdout results.
 
+### E2: exploratory holdout with frozen weights
+
+```bash
+# 1. train only: fit and record the frozen weights and plan, then commit eval/hybrid_freeze.json
+uv run python scripts/hybrid_holdout.py --config configs/hybrid_holdout.yaml --freeze
+# 2. score MIND-small dev with those weights (refuses unless the freeze is committed)
+uv run python scripts/hybrid_holdout.py --config configs/hybrid_holdout.yaml
+```
+
+Step 1 never loads dev, and an existing freeze is never overwritten. Step 2 verifies the v1
+manifest and checks that the base rankers reproduce the v1 holdout means exactly. It writes
+`results/hybrid_exploratory_holdout.json` and
+[reports/hybrid_exploratory_holdout.md](reports/hybrid_exploratory_holdout.md), and leaves
+`results/summary.json` and `results/experiments.json` untouched. The plan was fixed in
+D-027 before scoring; the findings are in D-028. These results are labeled *exploratory
+holdout*; a confirmatory result needs data nobody has opened
+([reports/reversal_memo.md](reports/reversal_memo.md)).
+
 ## Evaluation design
 
 **Splits**
@@ -183,10 +203,12 @@ Conventions and their consequences are recorded in [DECISIONS.md](DECISIONS.md).
 ## Layout
 
 ```
-src/recsys/   schemas, loaders, inventory, splits, metrics, rankers, evaluate, diagnostics, hybrid
-scripts/      inspect_data.py, evaluate.py, diagnose.py, baseline_diagnostics.py, hybrid_development.py
+src/recsys/   schemas, loaders, inventory, splits, metrics, rankers, evaluate, diagnostics, hybrid,
+              hybrid_holdout
+scripts/      inspect_data.py, evaluate.py, diagnose.py, baseline_diagnostics.py, hybrid_development.py,
+              hybrid_holdout.py
 configs/      baseline.yaml (real data), synthetic.yaml (fixtures), diagnostics configs
-eval/         manifest.json, locked before the first holdout run
+eval/         manifest.json, locked before the first holdout run; hybrid_freeze.json (D-027)
 results/      experiments.json, summary.json, figures/ (generated)
 reports/      generated reports; interpretation.md and reversal_memo.md are hand-written
 tests/        unit tests + synthetic fixtures
@@ -201,3 +223,4 @@ data/         README only; data/raw/ is gitignored
 - Labels reflect what Microsoft News's own 2019 system chose to show (exposure bias).
 - Holdout popularity uses train clicks only, so it's up to a day stale, and items first shown in dev have no click history.
 - Base rankers are simple, fixed-parameter baselines. Only the hybrid's weights are fitted, on train days only (D-025).
+- The hybrid's holdout result is exploratory: MIND-small dev had already been inspected before the hybrid was designed (D-022, D-028).
